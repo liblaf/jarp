@@ -14,7 +14,9 @@ ignoreRandomStrings: true
 maxFileSize: 500KB
 useGitignore: true
 words:
+  - argnums
   - arithmatex
+  - asarray
   - cuda
   - direnv
   - fieldz
@@ -23,11 +25,13 @@ words:
   - inlinehilite
   - jarp
   - jaxtyping
+  - kwonlyargs
   - liblaf
   - mkdocs
   - mkdocstrings
   - numprocesses
   - numpy
+  - prealloc
   - pycache
   - pydantic
   - pydocstyle
@@ -42,8 +46,10 @@ words:
   - pyvista
   - sdist
   - tombi
+  - toolz
   - trimesh
   - unflatten
+  - unflattening
   - unshallow
   - uuidgen
   - venv
