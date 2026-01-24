@@ -8,7 +8,7 @@ from jarp.utils import is_array
 from ._define import frozen
 
 type Leaf = Any
-type PyTreeDef = Any
+type PyTreeDef[T] = Any
 
 
 @frozen(static=True)

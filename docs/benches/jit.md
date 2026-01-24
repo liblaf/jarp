@@ -2,6 +2,8 @@
 
 This benchmark measures the invocation overhead of a "no-op" JIT-compiled function. Trace overhead is excluded by warming up the JIT cache.
 
+[Source Code](https://github.com/liblaf/jarp/blob/main/benches/jit.py)
+
 |         Method          | Overhead |
 | :---------------------: | -------: |
 |        `jax.jit`        |   6.6 µs |
