@@ -4,11 +4,11 @@ This benchmark measures the invocation overhead of a "no-op" JIT-compiled functi
 
 [Source Code](https://github.com/liblaf/jarp/blob/main/benches/jit.py)
 
-|         Method          | Overhead |
-| :---------------------: | -------: |
-|        `jax.jit`        |   6.6 µs |
-| `jarp.jit(filter=True)` |  10.3 µs |
-|  `equinox.filter_jit`   | 284.0 µs |
+|         Method          | No PyTree | Complex PyTree |
+| :---------------------: | --------: | -------------: |
+|        `jax.jit`        |   7.36 µs |      768.07 µs |
+| `jarp.jit(filter=True)` |  11.09 µs |      933.26 µs |
+|  `equinox.filter_jit`   | 292.72 µs |     1149.43 µs |
 
 ## JAX
 

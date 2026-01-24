@@ -1,33 +1,53 @@
 import timeit
 from collections.abc import Callable
+from typing import Any
 
 import equinox as eqx
 import jax
+import jax.numpy as jnp
 
 import jarp
 
-type NOP = Callable[[], None]
+# jax.config.update("jax_platforms", "cpu")
 
 
-def fun() -> None: ...
+def fun(inputs: Any = None) -> Any:
+    return inputs
 
 
-def bench(fun: NOP) -> float:
-    fun()  # warmup
+def bench(fun: Callable[..., Any]) -> float:
+    for _ in range(2000):  # warmup
+        fun()
     timer = timeit.Timer(fun)
-    number: int
-    time_taken: float
-    number, time_taken = timer.autorange()
+    number: int = 2000
+    time_taken: float = timer.timeit(number)
     return time_taken / number
 
 
+def print_elapsed(name: str, time_taken: float) -> None:
+    print(f"{name}: {time_taken * 1e6:.2f} µs")
+
+
 def main() -> None:
-    fun_jax: NOP = jax.jit(fun)
-    fun_jarp: NOP = jarp.jit(fun, filter=True)
-    fun_eqx: NOP = eqx.filter_jit(fun)
-    print("JAX JIT:", bench(fun_jax) * 1e6, "µs")
-    print("JARP JIT:", bench(fun_jarp) * 1e6, "µs")
-    print("Equinox JIT:", bench(fun_eqx) * 1e6, "µs")
+    fun_jax: Callable[..., Any] = jax.jit(fun)
+    fun_jarp: Callable[..., Any] = jarp.jit(fun, filter=True)
+    fun_eqx: Callable[..., Any] = eqx.filter_jit(fun)
+    print_elapsed("JAX JIT", bench(lambda: jax.block_until_ready(fun_jax())))
+    print_elapsed("JARP JIT", bench(lambda: jax.block_until_ready(fun_jarp())))
+    print_elapsed("Equinox JIT", bench(lambda: jax.block_until_ready(fun_eqx())))
+
+    inputs: list = [[jnp.zeros(())] * 10] * 10
+    print_elapsed(
+        "JAX JIT (with inputs)", bench(lambda: jax.block_until_ready(fun_jax(inputs)))
+    )
+    print_elapsed(
+        "JARP JIT (with inputs)",
+        bench(lambda: jax.block_until_ready(fun_jarp(inputs))),
+    )
+    print_elapsed(
+        "Equinox JIT (with inputs)",
+        bench(lambda: jax.block_until_ready(fun_eqx(inputs))),
+    )
 
 
 if __name__ == "__main__":
