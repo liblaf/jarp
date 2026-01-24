@@ -55,9 +55,21 @@ def _codegen_flatten(
     children: ast.Tuple = _codegen_attrgetter(data_fields)
     aux: ast.Tuple = _codegen_attrgetter(meta_fields)
     source: ast.FunctionDef = ast.FunctionDef(
-        "tree_flatten",
-        ast.arguments(args=[ast.arg("obj")]),
-        [ast.Return(ast.Tuple([children, aux]))],
+        name="tree_flatten",
+        args=ast.arguments(
+            posonlyargs=[],
+            args=[ast.arg("obj")],
+            vararg=None,
+            kwonlyargs=[],
+            kw_defaults=[],
+            kwarg=None,
+            defaults=[],
+        ),
+        body=[ast.Return(ast.Tuple([children, aux], ast.Load()))],
+        decorator_list=[],
+        returns=None,
+        type_comment=None,
+        type_params=[],
     )
     filename: str = _make_filename(cls, "tree_flatten")
     namespace: dict[str, Any] = {}
@@ -73,16 +85,33 @@ def _codegen_flatten_with_keys(
     children: ast.Tuple = ast.Tuple(
         [
             ast.Tuple(
-                [ast.Name(f"{_PREFIX}{name}_key"), ast.Attribute(ast.Name("obj"), name)]
+                [
+                    ast.Name(f"{_PREFIX}{name}_key", ast.Load()),
+                    ast.Attribute(ast.Name("obj", ast.Load()), name, ast.Load()),
+                ],
+                ast.Load(),
             )
             for name in data_fields
-        ]
+        ],
+        ast.Load(),
     )
     aux: ast.Tuple = _codegen_attrgetter(meta_fields)
     source: ast.FunctionDef = ast.FunctionDef(
-        "tree_flatten_with_keys",
-        ast.arguments(args=[ast.arg("obj")]),
-        [ast.Return(ast.Tuple([children, aux]))],
+        name="tree_flatten_with_keys",
+        args=ast.arguments(
+            posonlyargs=[],
+            args=[ast.arg("obj")],
+            vararg=None,
+            kwonlyargs=[],
+            kw_defaults=[],
+            kwarg=None,
+            defaults=[],
+        ),
+        body=[ast.Return(ast.Tuple([children, aux], ast.Load()))],
+        decorator_list=[],
+        returns=None,
+        type_comment=None,
+        type_params=[],
     )
     filename: str = _make_filename(cls, "tree_flatten_with_keys")
     namespace: dict[str, Any] = {
@@ -101,7 +130,9 @@ def _codegen_unflatten(
         # obj = _object_new(_cls)
         ast.Assign(
             [ast.Name("obj", ast.Store())],
-            ast.Call(ast.Name(_OBJECT_NEW), [ast.Name(_CLS)]),
+            ast.Call(
+                ast.Name(_OBJECT_NEW, ast.Load()), [ast.Name(_CLS, ast.Load())], []
+            ),
         )
     ]
     if cls.__setattr__ is object.__setattr__:
@@ -118,11 +149,23 @@ def _codegen_unflatten(
         # _object_setattr(obj, "a", _a)
         body.extend(_codegen_setattr("children", data_fields))
     # return obj
-    body.append(ast.Return(ast.Name("obj")))
+    body.append(ast.Return(ast.Name("obj", ast.Load())))
     source: ast.FunctionDef = ast.FunctionDef(
-        "tree_unflatten",
-        ast.arguments(args=[ast.arg("aux"), ast.arg("children")]),
-        body,
+        name="tree_unflatten",
+        args=ast.arguments(
+            posonlyargs=[],
+            args=[ast.arg("aux"), ast.arg("children")],
+            vararg=None,
+            kwonlyargs=[],
+            kw_defaults=[],
+            kwarg=None,
+            defaults=[],
+        ),
+        body=body,
+        decorator_list=[],
+        returns=None,
+        type_comment=None,
+        type_params=[],
     )
     filename: str = _make_filename(cls, "tree_unflatten")
     namespace: dict[str, Any] = {
@@ -137,7 +180,13 @@ def _codegen_unflatten(
 
 
 def _codegen_attrgetter(fields: Iterable[str]) -> ast.Tuple:
-    return ast.Tuple([ast.Attribute(ast.Name("obj"), name) for name in fields])
+    return ast.Tuple(
+        [
+            ast.Attribute(ast.Name("obj", ast.Load()), name, ast.Load())
+            for name in fields
+        ],
+        ast.Load(),
+    )
 
 
 def _codegen_unpack(arg_name: str, fields: Iterable[str]) -> list[ast.stmt]:
@@ -147,13 +196,13 @@ def _codegen_unpack(arg_name: str, fields: Iterable[str]) -> list[ast.stmt]:
             [
                 ast.Tuple(
                     [
-                        ast.Attribute(ast.Name("obj"), name, ast.Store())
+                        ast.Attribute(ast.Name("obj", ast.Load()), name, ast.Store())
                         for name in fields
                     ],
                     ast.Store(),
                 )
             ],
-            ast.Name(arg_name),
+            ast.Name(arg_name, ast.Load()),
         )
     ]
 
@@ -170,7 +219,7 @@ def _codegen_setattr(arg_name: str, fields: Iterable[str]) -> list[ast.stmt]:
                     ast.Store(),
                 )
             ],
-            ast.Name(arg_name),
+            ast.Name(arg_name, ast.Load()),
         )
     ]
     body.extend(
@@ -178,8 +227,13 @@ def _codegen_setattr(arg_name: str, fields: Iterable[str]) -> list[ast.stmt]:
             # _object_setattr(obj, "name", _name)
             ast.Expr(
                 ast.Call(
-                    ast.Name(_OBJECT_SETATTR),
-                    [ast.Name("obj"), ast.Constant(name), ast.Name(f"{_PREFIX}{name}")],
+                    func=ast.Name(_OBJECT_SETATTR, ast.Load()),
+                    args=[
+                        ast.Name("obj", ast.Load()),
+                        ast.Constant(name),
+                        ast.Name(f"{_PREFIX}{name}", ast.Load()),
+                    ],
+                    keywords=[],
                 )
             )
             for name in fields
@@ -189,7 +243,7 @@ def _codegen_setattr(arg_name: str, fields: Iterable[str]) -> list[ast.stmt]:
 
 
 def _compile(source: ast.FunctionDef, filename: str, namespace: dict[str, Any]) -> None:
-    module: ast.Module = ast.Module([source])
+    module: ast.Module = ast.Module([source], type_ignores=[])
     module: ast.Module = ast.fix_missing_locations(module)
     code: types.CodeType = compile(module, filename, "exec")
     exec(code, namespace)  # noqa: S102
