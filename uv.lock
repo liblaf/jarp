@@ -978,6 +978,7 @@ dependencies = [
     { name = "attrs" },
     { name = "fieldz" },
     { name = "jax" },
+    { name = "jaxtyping" },
     { name = "lazy-loader" },
     { name = "liblaf-grapes" },
     { name = "warp-lang" },
@@ -998,6 +999,9 @@ build = [
     { name = "hatch" },
     { name = "twine" },
 ]
+dev = [
+    { name = "toolz-stubs" },
+]
 docs = [
     { name = "liblaf-mkdocs-preset" },
     { name = "mkdocs" },
@@ -1014,6 +1018,7 @@ requires-dist = [
     { name = "jax", specifier = ">=0.9,<0.10" },
     { name = "jax", extras = ["cuda12"], marker = "extra == 'cuda12'", specifier = ">=0.9,<0.10" },
     { name = "jax", extras = ["cuda13"], marker = "extra == 'cuda13'", specifier = ">=0.9,<0.10" },
+    { name = "jaxtyping", specifier = ">=0.3,<0.4" },
     { name = "lazy-loader", specifier = ">=0.4,<0.5" },
     { name = "liblaf-grapes", specifier = ">=9,<10" },
     { name = "warp-lang", specifier = ">=1,<2" },
@@ -1027,7 +1032,7 @@ build = [
     { name = "hatch", specifier = ">=1,<2" },
     { name = "twine", specifier = ">=6,<7" },
 ]
-dev = []
+dev = [{ name = "toolz-stubs", specifier = ">=0.3,<0.4" }]
 docs = [
     { name = "liblaf-mkdocs-preset", specifier = ">=0.3,<0.4" },
     { name = "mkdocs", specifier = ">=1,<2" },
@@ -1182,6 +1187,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/7d/c0/c172876423623282af055b4b46bcea1fd933afc3306455e5eb6e5ef18344/jaxlib-0.9.0-cp314-cp314t-macosx_11_0_arm64.whl", hash = "sha256:48e315c70509f7927e379c4dd98d6e2dc2a6198677a6e0c50f1cc44199ba50d3", size = 56210812, upload-time = "2026-01-20T23:06:36.154Z" },
     { url = "https://files.pythonhosted.org/packages/49/c1/8d051e9c2860ca228b98ba068daeadd7cdd0e8e06b4a93e27cab880e36ab/jaxlib-0.9.0-cp314-cp314t-manylinux_2_27_aarch64.whl", hash = "sha256:ef8006070aaceab7bec17eaa7e1d1b9d369793ad95927a14a27be216c063cd9c", size = 74885282, upload-time = "2026-01-20T23:06:40.22Z" },
     { url = "https://files.pythonhosted.org/packages/be/9a/b8daeec1fd3f492f9cbd5a8043032be6d24b23394254ff02ba0723f6b2e8/jaxlib-0.9.0-cp314-cp314t-manylinux_2_27_x86_64.whl", hash = "sha256:866ce0a67f59fb0cc70e9b7307e70cf61e8ea3c8bad841796a471162e20056f1", size = 80437354, upload-time = "2026-01-20T23:06:44.06Z" },
+]
+
+[[package]]
+name = "jaxtyping"
+version = "0.3.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "wadler-lindig" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/43/30/0e29eab664d33127a7a30aebd7a845a95fbfa1887ede692676769820acea/jaxtyping-0.3.5.tar.gz", hash = "sha256:8150ad5b72b62fa63f573d492a79e9e455f070abe3b260f7dc15270b3eb9bba6", size = 45482, upload-time = "2026-01-05T10:51:34.486Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/73/19/a29de61c7ada0edf4eacfc19355ab8560091b65ea5d2450bcb984e203259/jaxtyping-0.3.5-py3-none-any.whl", hash = "sha256:862c39fa2e526274e82dc96ee8dbe9369dadb651ab1e05d95bd685acb4e2ef02", size = 55824, upload-time = "2026-01-05T10:51:33.523Z" },
 ]
 
 [[package]]
@@ -2880,6 +2897,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/11/d6/114b492226588d6ff54579d95847662fc69196bdeec318eb45393b24c192/toolz-1.1.0.tar.gz", hash = "sha256:27a5c770d068c110d9ed9323f24f1543e83b2f300a687b7891c1a6d56b697b5b", size = 52613, upload-time = "2025-10-17T04:03:21.661Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fb/12/5911ae3eeec47800503a238d971e51722ccea5feb8569b735184d5fcdbc0/toolz-1.1.0-py3-none-any.whl", hash = "sha256:15ccc861ac51c53696de0a5d6d4607f99c210739caf987b5d2054f3efed429d8", size = 58093, upload-time = "2025-10-17T04:03:20.435Z" },
+]
+
+[[package]]
+name = "toolz-stubs"
+version = "0.3.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "toolz" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-4-jarp-cuda12' and extra == 'extra-4-jarp-cuda13')" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ee/98/6690a4f68c4eba338efcc03c22f91a866036987ef20f6c2378d2e67dc129/toolz_stubs-0.3.1.tar.gz", hash = "sha256:277946eaafdd1d52cfd003fdfa08b485e9196af43bf800c6094a5a2b880fe1b0", size = 62947, upload-time = "2026-01-08T12:48:30.531Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/39/6d/457d956e8d9dae766d821444d10cbdbd4760a02e6e5be7c2b06a72a7521f/toolz_stubs-0.3.1-py3-none-any.whl", hash = "sha256:807cefdb67120e495bfc141af856391990b487391b4e8fda8fb06e2b9a04b9bf", size = 66920, upload-time = "2026-01-08T12:48:28.962Z" },
 ]
 
 [[package]]
