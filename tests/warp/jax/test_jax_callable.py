@@ -10,6 +10,8 @@ from jaxtyping import DTypeLike
 
 import jarp
 
+pytestmark = pytest.mark.skipif(not wp.is_cuda_available(), reason="CUDA not available")
+
 float_ = Any
 
 
