@@ -1,4 +1,4 @@
-from . import tree, warp
+from . import toolz, tree, warp
 from ._jit import jit
 from ._version import __version__, __version_tuple__
 from .tree import (
@@ -26,6 +26,7 @@ __all__ = [
     "register_pytree_prelude",
     "static",
     "to_warp",
+    "toolz",
     "tree",
     "warp",
 ]
