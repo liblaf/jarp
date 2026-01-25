@@ -3,7 +3,6 @@ from typing import Any
 
 import jax
 from jax import Array
-from jax._src.tree_util import _registry
 
 from ._define import frozen
 
@@ -29,12 +28,8 @@ def combine_leaves(data_leaves: Iterable[Any], meta_leaves: Iterable[Any]) -> li
     ]
 
 
-def is_array(obj: Any) -> bool:
-    return isinstance(obj, Array)
-
-
-def is_pytree(obj: Any) -> bool:
-    return obj is None or type(obj) in _registry
+def is_data_leaf(obj: Any) -> bool:
+    return obj is None or isinstance(obj, Array)
 
 
 def partition[T](obj: T) -> tuple[list[Any], AuxData[T]]:
@@ -48,14 +43,40 @@ def partition[T](obj: T) -> tuple[list[Any], AuxData[T]]:
     return data_leaves, aux
 
 
+def partition_with_path[T](obj: T) -> tuple[list[tuple[Any, object]], AuxData[T]]:
+    leaves_with_path: list[tuple[Any, Any]]
+    treedef: PyTreeDef[T]
+    leaves_with_path, treedef = jax.tree.flatten_with_path(obj)
+    data_leaves_with_path: list[tuple[Any, object]]
+    meta_leaves: list[Any]
+    data_leaves_with_path, meta_leaves = partition_leaves_with_path(leaves_with_path)
+    aux: AuxData = AuxData(tuple(meta_leaves), treedef)
+    return data_leaves_with_path, aux
+
+
 def partition_leaves(leaves: Iterable[Any]) -> tuple[list[Any], list[Any]]:
     data_leaves: list[Any] = []
     meta_leaves: list[Any] = []
     for leaf in leaves:
-        if is_array(leaf):
+        if is_data_leaf(leaf):
             data_leaves.append(leaf)
             meta_leaves.append(None)
         else:
             data_leaves.append(None)
             meta_leaves.append(leaf)
     return data_leaves, meta_leaves
+
+
+def partition_leaves_with_path(
+    leaves_with_path: Iterable[tuple[Any, Any]],
+) -> tuple[list[tuple[Any, Any]], list[Any]]:
+    data_leaves_with_path: list[tuple[Any, object]] = []
+    meta_leaves: list[Any] = []
+    for path, leaf in leaves_with_path:
+        if is_data_leaf(leaf):
+            data_leaves_with_path.append((path, leaf))
+            meta_leaves.append(None)
+        else:
+            data_leaves_with_path.append((path, None))
+            meta_leaves.append(leaf)
+    return data_leaves_with_path, meta_leaves
