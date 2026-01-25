@@ -7,7 +7,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog-config-spec/blob/master/versions/2.2.0/README.md),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0](https://github.com/liblaf/jarp/releases/tag/v0.1.0) - 2026-01-24
+## [0.1.1](https://github.com/liblaf/jarp/releases/tag/v0.1.1) - 2026-01-25
+
+### ✨ Features
+
+- **warp:** add to_warp utility for NumPy and JAX array conversion - [c97ba72](https://github.com/liblaf/jarp/commit/c97ba721ba9dccd602165f7325835c35f12ec94e) by [@liblaf](https://github.com/liblaf)
+- **warp,tree:** add warp integration and generic pytree registration - [f3e3ae9](https://github.com/liblaf/jarp/commit/f3e3ae96cbfe5b6717ce14047d2485f0551db6d1) by [@liblaf](https://github.com/liblaf)
+- **warp,tree:** enhance `to_warp` flexibility and add `array` field specifier - [e69b98e](https://github.com/liblaf/jarp/commit/e69b98e614812bcdfa9d27d22482393b75745049) by [@liblaf](https://github.com/liblaf)
+
+### ✅ Tests
+
+- **warp/jax:** skip tests if CUDA is not available - [ee7a106](https://github.com/liblaf/jarp/commit/ee7a106e123799fdf0bee462d49df7619f0fc6fe) by [@liblaf](https://github.com/liblaf)
+
+### ❤️ Contributors
+
+- [@liblaf](https://github.com/liblaf) made their first contribution
+
+## [0.1.0](https://github.com/liblaf/jarp/releases/tag/v0.1.0) - 2026-01-25
 
 ### ✨ Features
 
@@ -26,4 +42,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ❤️ Contributors
 
+- [@liblaf[bot]](https://github.com/apps/liblaf) made their first contribution in [#2](https://github.com/liblaf/jarp/pull/2)
 - [@liblaf](https://github.com/liblaf) made their first contribution
