@@ -14,12 +14,7 @@
     "**/site/": true
   },
   "python.analysis.diagnosticMode": "workspace",
-  "python.testing.pytestArgs": [
-    "--color=yes",
-    "--cov",
-    "--numprocesses",
-    "auto"
-  ],
+  "python.testing.pytestArgs": ["--color=yes", "--cov"],
   "python.testing.pytestEnabled": true,
   "python.testing.unittestEnabled": false,
   "yaml.customTags": [

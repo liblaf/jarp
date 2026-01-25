@@ -1,8 +1,6 @@
-from collections.abc import Mapping
 from typing import Any
 
 import attrs
-import tlz
 from liblaf import grapes
 
 
@@ -10,9 +8,7 @@ from liblaf import grapes
 def field(**kwargs) -> Any:
     static: bool = kwargs.pop("static", False)
     if static:
-        metadata: Mapping = kwargs.get("metadata", {})
-        metadata = tlz.assoc(metadata, "static", static)
-        kwargs["metadata"] = metadata
+        kwargs["metadata"] = {"static": static, **kwargs.pop("metadata", {})}
     return attrs.field(**kwargs)
 
 

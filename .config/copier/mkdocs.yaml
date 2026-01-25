@@ -3,11 +3,7 @@
 
 site_name: "Jarp"
 site_url:
-  !ENV [
-    READTHEDOCS_CANONICAL_URL,
-    SITE_URL,
-    "https://liblaf.github.io/jarp/",
-  ]
+  !ENV [READTHEDOCS_CANONICAL_URL, SITE_URL, "https://liblaf.github.io/jarp/"]
 site_author: "liblaf"
 repo_name: "liblaf/jarp"
 repo_url: "https://github.com/liblaf/jarp"

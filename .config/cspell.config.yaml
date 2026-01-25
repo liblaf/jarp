@@ -31,7 +31,6 @@ words:
   - mkdocstrings
   - numprocesses
   - numpy
-  - prealloc
   - pycache
   - pydantic
   - pydocstyle
@@ -43,6 +42,7 @@ words:
   - pyproject
   - pyrightconfig
   - pytest
+  - pytree
   - pyvista
   - sdist
   - tombi
@@ -50,7 +50,7 @@ words:
   - trimesh
   - unflatten
   - unflattening
-  - unshallow
   - uuidgen
   - venv
   - virtualenv
+  - vmap

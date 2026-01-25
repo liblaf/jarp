@@ -2,12 +2,16 @@ import ast
 import linecache
 import types
 from collections.abc import Callable, Iterable
-from typing import Any, NamedTuple, Protocol
+from typing import Any
 
 import jax.tree_util as jtu
 
-type KeyEntry = Any
-type Leaf = Any
+from ._types import (
+    FlattenFunction,
+    FlattenWithKeysFunction,
+    PyTreeFunctions,
+    UnflattenFunction,
+)
 
 _PREFIX: str = "_jarp_codegen_"
 _CLS: str = f"{_PREFIX}cls"
@@ -15,30 +19,10 @@ _OBJECT_NEW: str = f"{_PREFIX}object_new"
 _OBJECT_SETATTR: str = f"{_PREFIX}object_setattr"
 
 
-class FlattenFunction(Protocol):
-    def __call__(self, obj: Any) -> tuple[tuple[Leaf, ...], tuple[Any, ...]]: ...
-
-
-class FlattenWithKeysFunction(Protocol):
-    def __call__(
-        self, obj: Any
-    ) -> tuple[tuple[tuple[KeyEntry, Leaf], ...], tuple[Any, ...]]: ...
-
-
-class UnflattenFunction(Protocol):
-    def __call__(self, aux: tuple[Any, ...], children: tuple[Leaf, ...]) -> Any: ...
-
-
-class CodeGenResults(NamedTuple):
-    tree_flatten: FlattenFunction
-    tree_flatten_with_keys: FlattenWithKeysFunction
-    tree_unflatten: UnflattenFunction
-
-
 def codegen(
     cls: type, data_fields: Iterable[str], meta_fields: Iterable[str]
-) -> CodeGenResults:
-    return CodeGenResults(
+) -> PyTreeFunctions:
+    return PyTreeFunctions(
         _codegen_flatten(cls, data_fields, meta_fields),
         _codegen_flatten_with_keys(cls, data_fields, meta_fields),
         _codegen_unflatten(cls, data_fields, meta_fields),
@@ -252,10 +236,6 @@ def _compile(source: ast.FunctionDef, filename: str, namespace: dict[str, Any]) 
 
 def _make_filename(cls: type, func_name: str) -> str:
     return f"<jarp generated {func_name} {cls.__module__}.{cls.__qualname__}>"
-
-
-def _make_keys(fields: Iterable[str]) -> dict[str, KeyEntry]:
-    return {f"{_PREFIX}{name}_key": jtu.GetAttrKey(name) for name in fields}
 
 
 def _update_linecache(source: ast.Module, filename: str) -> None:
