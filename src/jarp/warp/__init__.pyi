@@ -10,6 +10,7 @@ from ._jax_kernel import (
     JaxKernelOptions,
     jax_kernel,
 )
+from ._to_warp import to_warp
 
 __all__ = [
     "FfiCallableProtocol",
@@ -20,4 +21,5 @@ __all__ = [
     "JaxKernelOptions",
     "jax_callable",
     "jax_kernel",
+    "to_warp",
 ]
