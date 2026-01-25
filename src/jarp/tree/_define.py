@@ -8,7 +8,7 @@ import attrs
 import jax.tree_util as jtu
 from liblaf import grapes
 
-from ._field_specifiers import field, static
+from ._field_specifiers import array, field, static
 from ._flatten import register_fieldz
 
 
@@ -38,10 +38,10 @@ class DefineOptions(TypedDict, total=False):
 
 
 @overload
-@dataclass_transform(field_specifiers=(attrs.field, field, static))
+@dataclass_transform(field_specifiers=(attrs.field, array, field, static))
 def define[T: type](cls: T, /, **kwargs: Unpack[DefineOptions]) -> T: ...
 @overload
-@dataclass_transform(field_specifiers=(attrs.field, field, static))
+@dataclass_transform(field_specifiers=(attrs.field, array, field, static))
 def define[T: type](**kwargs: Unpack[DefineOptions]) -> Callable[[T], T]: ...
 def define[T: type](maybe_cls: T | None = None, **kwargs) -> T | Callable:
     _warnings_hide = True
@@ -61,10 +61,14 @@ def define[T: type](maybe_cls: T | None = None, **kwargs) -> T | Callable:
 
 
 @overload
-@dataclass_transform(frozen_default=True, field_specifiers=(attrs.field, field, static))
+@dataclass_transform(
+    frozen_default=True, field_specifiers=(attrs.field, array, field, static)
+)
 def frozen[T: type](cls: T, /, **kwargs: Unpack[DefineOptions]) -> T: ...
 @overload
-@dataclass_transform(frozen_default=True, field_specifiers=(attrs.field, field, static))
+@dataclass_transform(
+    frozen_default=True, field_specifiers=(attrs.field, array, field, static)
+)
 def frozen[T: type](**kwargs: Unpack[DefineOptions]) -> Callable[[T], T]: ...
 def frozen[T: type](maybe_cls: T | None = None, **kwargs) -> T | Callable:
     _warnings_hide = True

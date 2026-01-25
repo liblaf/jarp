@@ -1,56 +1,48 @@
 import functools
-import operator
-from collections.abc import Callable, Sequence
-from typing import Any, Literal, TypedDict
+from collections.abc import Sequence
+from typing import Any
 
-import attrs
 import jax
-import jax.numpy as jnp
 import numpy as np
 import warp as wp
 
 
-class ToWarpOptions(TypedDict, total=False):
-    shape: Sequence[int] | None
-    device: wp.DeviceLike | None
-    requires_grad: bool
-
-
-def to_warp(
-    arr: Any, dtype: Literal["vector", "matrix"] | Any = None, **kwargs
-) -> wp.array:
-    adapter: _Adapter = _get_adapter(arr)
-    match dtype:
-        case "vector":
-            length: int = adapter.shape(arr)[-1]
-            dtype = wp.types.vector(length, adapter.dtype_from(arr.dtype))
-        case "matrix":
-            shape: tuple[int, int] = adapter.shape(arr)[-2], adapter.shape(arr)[-1]
-            dtype = wp.types.matrix(shape, adapter.dtype_from(arr.dtype))
-    return adapter.array_from(arr, dtype, **kwargs)
-
-
-@attrs.frozen
-class _Adapter:
-    array_from: Callable[..., wp.array]
-    dtype_from: Callable[..., Any]
-    shape: Callable[[Any], tuple[int, ...]] = operator.attrgetter("shape")
-
-
 @functools.singledispatch
-def _get_adapter(arr: Any) -> _Adapter:
-    raise NotImplementedError
+def to_warp(arr: Any, *_args, **_kwargs) -> wp.array:
+    raise TypeError(arr)
 
 
-@_get_adapter.register(np.ndarray)
-def _get_adapter_numpy(_arr: np.ndarray) -> _Adapter:
-    return _Adapter(
-        array_from=wp.from_numpy, dtype_from=wp.dtype_from_numpy, shape=np.shape
-    )
+def _convert_dtype(dtype: Any, arr_shape: Sequence[int], arr_dtype: Any) -> Any:
+    match dtype:
+        case (length, dtype):
+            if length == -1:
+                length: int = arr_shape[-1]
+            if dtype is None or dtype is Any:
+                dtype = arr_dtype
+            return wp.types.vector(length, dtype)
+        case (rows, cols, dtype):
+            if rows == -1:
+                rows: int = arr_shape[-2]
+            if cols == -1:
+                cols: int = arr_shape[-1]
+            if dtype is None or dtype is Any:
+                dtype = arr_dtype
+            return wp.types.matrix((rows, cols), dtype)
+        case _:
+            return dtype
 
 
-@_get_adapter.register(jax.Array)
-def _get_adapter_jax(_arr: jax.Array) -> _Adapter:
-    return _Adapter(
-        array_from=wp.from_jax, dtype_from=wp.dtype_from_jax, shape=jnp.shape
-    )
+@to_warp.register(np.ndarray)
+def _to_warp_numpy(arr: np.ndarray, dtype: Any = None, **kwargs) -> wp.array:
+    dtype = _convert_dtype(dtype, arr.shape, wp.dtype_from_numpy(arr.dtype))
+    return wp.from_numpy(arr, dtype, **kwargs)
+
+
+@to_warp.register(jax.Array)
+def _to_warp_jax(arr: jax.Array, dtype: Any = None, **kwargs) -> wp.array:
+    dtype = _convert_dtype(dtype, arr.shape, wp.dtype_from_jax(arr.dtype))
+    requires_grad: bool = kwargs.pop("requires_grad", False)
+    arr_wp: wp.array = wp.from_jax(arr, dtype, **kwargs)
+    if requires_grad:
+        arr_wp.requires_grad = True
+    return arr_wp
