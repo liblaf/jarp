@@ -2,6 +2,7 @@ from ._define import define, frozen
 from ._field_specifiers import array, field, static
 from ._filters import AuxData, combine, combine_leaves, partition, partition_leaves
 from ._flatten import register_fieldz, register_generic
+from .prelude import register_pytree_prelude
 
 __all__ = [
     "AuxData",
@@ -15,5 +16,6 @@ __all__ = [
     "partition_leaves",
     "register_fieldz",
     "register_generic",
+    "register_pytree_prelude",
     "static",
 ]

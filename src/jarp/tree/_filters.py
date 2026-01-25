@@ -3,6 +3,7 @@ from typing import Any
 
 import jax
 from jax import Array
+from jax._src.tree_util import _registry
 
 from ._define import frozen
 
@@ -30,6 +31,10 @@ def combine_leaves(data_leaves: Iterable[Any], meta_leaves: Iterable[Any]) -> li
 
 def is_array(obj: Any) -> bool:
     return isinstance(obj, Array)
+
+
+def is_pytree(obj: Any) -> bool:
+    return obj is None or type(obj) in _registry
 
 
 def partition[T](obj: T) -> tuple[list[Any], AuxData[T]]:

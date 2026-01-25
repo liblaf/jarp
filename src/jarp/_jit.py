@@ -91,3 +91,6 @@ class _Outer[**P, T]:
         if instance is None:
             return self
         return types.MethodType(self, instance)
+
+
+tree.register_pytree_prelude()
