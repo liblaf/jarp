@@ -1,3 +1,4 @@
+from . import types
 from ._jax_callable import (
     FfiCallableProtocol,
     JaxCallableCallOptions,
@@ -22,4 +23,5 @@ __all__ = [
     "jax_callable",
     "jax_kernel",
     "to_warp",
+    "types",
 ]
