@@ -41,8 +41,18 @@ def array(**kwargs: Unpack[FieldOptions[ArrayLike | None]]) -> Array:
 
 
 @grapes.wraps(attrs.field)
+def auto(**kwargs) -> Any:
+    kwargs.setdefault("auto", True)
+    return field(**kwargs)
+
+
+@grapes.wraps(attrs.field)
 def field(**kwargs) -> Any:
+    auto: bool = kwargs.pop("auto", False)
     static: bool = kwargs.pop("static", False)
+    assert not (auto and static), "Field cannot be both auto and static"
+    if auto:
+        kwargs["metadata"] = {"auto": auto, **kwargs.pop("metadata", {})}
     if static:
         kwargs["metadata"] = {"static": static, **kwargs.pop("metadata", {})}
     return attrs.field(**kwargs)

@@ -50,6 +50,9 @@ def test_jit_method() -> None:
     output_data = a.identity(data)
     np.testing.assert_allclose(output_data, data)
 
+    output_data = A.identity(a, data)
+    np.testing.assert_allclose(output_data, data)
+
 
 def test_jit_filter_method() -> None:
     a = A()
@@ -58,5 +61,9 @@ def test_jit_filter_method() -> None:
     output_data: Array
     output_meta: str
     output_data, output_meta = a.identity_filter((data, meta))
+    np.testing.assert_allclose(output_data, data)
+    assert output_meta == meta
+
+    output_data, output_meta = A.identity_filter(a, (data, meta))
     np.testing.assert_allclose(output_data, data)
     assert output_meta == meta

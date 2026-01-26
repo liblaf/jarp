@@ -7,8 +7,8 @@ import jax
 
 from jarp import tree
 
-type _Dynamic = Iterable[Any]
-type _Static[T] = tree.AuxData[T]
+type _Data = Iterable[jax.Array | None]
+type _Meta[T] = tree.AuxData[T]
 
 
 class JitOptions(TypedDict, total=False):
@@ -31,55 +31,53 @@ def jit[**P, T](fun: Callable[P, T] | None = None, **kwargs) -> Callable:
     if not filter_:
         return jax.jit(fun, **kwargs)
 
-    fun_dynamic: _Dynamic
-    fun_static: _Static[Callable[P, T]]
-    fun_dynamic, fun_static = tree.partition(fun)
-    inner: _Inner[T] = _Inner(fun_static)
+    fun_data: _Data
+    fun_meta: _Meta[Callable[P, T]]
+    fun_data, fun_meta = tree.partition(fun)
+    inner: _Inner[T] = _Inner(fun_meta)
     inner_jit: _InnerProtocol[T] = jax.jit(inner, static_argnums=(2,), **kwargs)
-    outer: _Outer[P, T] = _Outer(fun_dynamic=fun_dynamic, inner=inner_jit)
+    outer: _Outer[P, T] = _Outer(fun_data=fun_data, inner=inner_jit)
     functools.update_wrapper(outer, fun)
     return outer
 
 
 class _InnerProtocol[T](Protocol):
     def __call__(
-        self, inputs_dynamic: _Dynamic, fun_dynamic: _Dynamic, inputs_static: _Static
-    ) -> tuple[_Dynamic, _Static[T]]: ...
+        self, inputs_dynamic: _Data, fun_dynamic: _Data, inputs_static: _Meta
+    ) -> tuple[_Data, _Meta[T]]: ...
 
 
 @tree.frozen(static=True)
 class _Inner[T](_InnerProtocol[T]):
-    fun_static: _Static[Callable[..., T]]
+    fun_meta: _Meta[Callable[..., T]]
 
     def __call__(
-        self, inputs_dynamic: _Dynamic, fun_dynamic: _Dynamic, inputs_static: _Static
-    ) -> tuple[_Dynamic, _Static[T]]:
-        fun: Callable[..., T] = tree.combine(fun_dynamic, self.fun_static)
+        self, inputs_data: _Data, fun_data: _Data, inputs_meta: _Meta
+    ) -> tuple[_Data, _Meta[T]]:
+        fun: Callable[..., T] = tree.combine(fun_data, self.fun_meta)
         args: Sequence[Any]
         kwargs: Mapping[str, Any]
-        args, kwargs = tree.combine(inputs_dynamic, inputs_static)
+        args, kwargs = tree.combine(inputs_data, inputs_meta)
         outputs: T = fun(*args, **kwargs)
-        outputs_dynamic: _Dynamic
-        outputs_static: _Static[T]
-        outputs_dynamic, outputs_static = tree.partition(outputs)
-        return outputs_dynamic, outputs_static
+        outputs_data: _Data
+        outputs_meta: _Meta[T]
+        outputs_data, outputs_meta = tree.partition(outputs)
+        return outputs_data, outputs_meta
 
 
 @tree.define(slots=False, static=False)
 class _Outer[**P, T]:
-    fun_dynamic: _Dynamic
+    fun_data: _Data
     inner: _InnerProtocol[T]
 
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T:
-        inputs_dynamic: _Dynamic
-        inputs_static: _Static
-        inputs_dynamic, inputs_static = tree.partition((args, kwargs))
-        outputs_dynamic: _Dynamic
-        outputs_static: _Static[T]
-        outputs_dynamic, outputs_static = self.inner(
-            inputs_dynamic, self.fun_dynamic, inputs_static
-        )
-        return tree.combine(outputs_dynamic, outputs_static)
+        inputs_data: _Data
+        inputs_meta: _Meta
+        inputs_data, inputs_meta = tree.partition((args, kwargs))
+        outputs_data: _Data
+        outputs_meta: _Meta[T]
+        outputs_data, outputs_meta = self.inner(inputs_data, self.fun_data, inputs_meta)
+        return tree.combine(outputs_data, outputs_meta)
 
     @overload
     def __get__(self, instance: None, owner: type | None = None) -> Self: ...

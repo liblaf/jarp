@@ -4,8 +4,6 @@ from typing import Any
 
 import jax.tree_util as jtu
 
-from ._utils import in_registry
-
 
 def _method_flatten(obj: types.MethodType) -> tuple[tuple[object], Callable[..., Any]]:
     return (obj.__self__,), obj.__func__
@@ -24,8 +22,6 @@ def _method_unflatten(
 
 
 def register_pytree_method() -> None:
-    if in_registry(types.MethodType):
-        return
     jtu.register_pytree_node(
         types.MethodType, _method_flatten, _method_unflatten, _method_flatten_with_keys
     )

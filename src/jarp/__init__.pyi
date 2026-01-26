@@ -4,6 +4,7 @@ from ._version import __version__, __version_tuple__
 from .tree import (
     PyTreeProxy,
     array,
+    auto,
     define,
     field,
     frozen,
@@ -17,6 +18,7 @@ __all__ = [
     "__version__",
     "__version_tuple__",
     "array",
+    "auto",
     "define",
     "field",
     "frozen",

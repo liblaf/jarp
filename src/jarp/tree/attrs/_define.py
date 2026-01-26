@@ -8,8 +8,8 @@ import attrs
 import jax.tree_util as jtu
 from liblaf import grapes
 
-from ._field_specifiers import array, field, static
-from ._flatten import register_fieldz
+from ._field_specifiers import array, auto, field, static
+from ._register import register_fieldz
 
 
 class DefineOptions(TypedDict, total=False):
@@ -38,7 +38,7 @@ class DefineOptions(TypedDict, total=False):
 
 
 @overload
-@dataclass_transform(field_specifiers=(attrs.field, array, field, static))
+@dataclass_transform(field_specifiers=(attrs.field, array, auto, field, static))
 def define[T: type](cls: T, /, **kwargs: Unpack[DefineOptions]) -> T: ...
 @overload
 @dataclass_transform(field_specifiers=(attrs.field, array, field, static))
@@ -62,7 +62,7 @@ def define[T: type](maybe_cls: T | None = None, **kwargs) -> T | Callable:
 
 @overload
 @dataclass_transform(
-    frozen_default=True, field_specifiers=(attrs.field, array, field, static)
+    frozen_default=True, field_specifiers=(attrs.field, array, auto, field, static)
 )
 def frozen[T: type](cls: T, /, **kwargs: Unpack[DefineOptions]) -> T: ...
 @overload

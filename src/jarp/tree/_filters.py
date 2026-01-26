@@ -2,81 +2,60 @@ from collections.abc import Iterable
 from typing import Any
 
 import jax
+import jax.tree_util as jtu
 from jax import Array
-
-from ._define import frozen
-
-type Leaf = Any
-type PyTreeDef[T] = Any
+from jax._src.tree_util import _registry
+from liblaf import grapes
+from typing_extensions import TypeIs
 
 
-@frozen(static=True)
+@jtu.register_static
+@grapes.attrs.frozen
 class AuxData[T]:
-    meta_fields: tuple[Any, ...]
-    treedef: PyTreeDef[T]
+    meta_leaves: tuple[Any, ...]
+    treedef: Any
 
 
-def combine[T](data_leaves: Iterable[Any], aux: AuxData[T]) -> T:
-    leaves: list[Any] = combine_leaves(data_leaves, aux.meta_fields)
+def is_data(obj: Any) -> bool:
+    return obj is None or isinstance(obj, Array) or type(obj) in _registry
+
+
+def is_leaf(obj: Any) -> TypeIs[Array | None]:
+    return obj is None or isinstance(obj, Array)
+
+
+def combine[T](data_leaves: Iterable[Array | None], aux: AuxData[T]) -> T:
+    leaves: list[Any] = combine_leaves(data_leaves, aux.meta_leaves)
     return jax.tree.unflatten(aux.treedef, leaves)
 
 
-def combine_leaves(data_leaves: Iterable[Any], meta_leaves: Iterable[Any]) -> list[Any]:
+def combine_leaves(
+    data_leaves: Iterable[Array | None], meta_leaves: Iterable[Any]
+) -> list[Any]:
     return [
-        meta_leaf if data_leaf is None else data_leaf
+        data_leaf if meta_leaf is None else meta_leaf
         for data_leaf, meta_leaf in zip(data_leaves, meta_leaves, strict=True)
     ]
 
 
-def is_data_leaf(obj: Any) -> bool:
-    return obj is None or isinstance(obj, Array)
-
-
-def partition[T](obj: T) -> tuple[list[Any], AuxData[T]]:
+def partition(obj: Any) -> tuple[list[Array | None], AuxData]:
     leaves: list[Any]
-    treedef: PyTreeDef[T]
+    treedef: Any
     leaves, treedef = jax.tree.flatten(obj)
-    data_leaves: list[Any]
+    data_leaves: list[Array | None]
     meta_leaves: list[Any]
     data_leaves, meta_leaves = partition_leaves(leaves)
-    aux: AuxData = AuxData(tuple(meta_leaves), treedef)
-    return data_leaves, aux
+    return data_leaves, AuxData(tuple(meta_leaves), treedef)
 
 
-def partition_with_path[T](obj: T) -> tuple[list[tuple[Any, object]], AuxData[T]]:
-    leaves_with_path: list[tuple[Any, Any]]
-    treedef: PyTreeDef[T]
-    leaves_with_path, treedef = jax.tree.flatten_with_path(obj)
-    data_leaves_with_path: list[tuple[Any, object]]
-    meta_leaves: list[Any]
-    data_leaves_with_path, meta_leaves = partition_leaves_with_path(leaves_with_path)
-    aux: AuxData = AuxData(tuple(meta_leaves), treedef)
-    return data_leaves_with_path, aux
-
-
-def partition_leaves(leaves: Iterable[Any]) -> tuple[list[Any], list[Any]]:
-    data_leaves: list[Any] = []
+def partition_leaves(leaves: list[Any]) -> tuple[list[Array | None], list[Any]]:
+    data_leaves: list[Array | None] = []
     meta_leaves: list[Any] = []
     for leaf in leaves:
-        if is_data_leaf(leaf):
+        if is_leaf(leaf):
             data_leaves.append(leaf)
             meta_leaves.append(None)
         else:
             data_leaves.append(None)
             meta_leaves.append(leaf)
     return data_leaves, meta_leaves
-
-
-def partition_leaves_with_path(
-    leaves_with_path: Iterable[tuple[Any, Any]],
-) -> tuple[list[tuple[Any, Any]], list[Any]]:
-    data_leaves_with_path: list[tuple[Any, object]] = []
-    meta_leaves: list[Any] = []
-    for path, leaf in leaves_with_path:
-        if is_data_leaf(leaf):
-            data_leaves_with_path.append((path, leaf))
-            meta_leaves.append(None)
-        else:
-            data_leaves_with_path.append((path, None))
-            meta_leaves.append(leaf)
-    return data_leaves_with_path, meta_leaves

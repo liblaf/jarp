@@ -1,33 +1,35 @@
-from ._define import define, frozen
-from ._field_specifiers import array, field, static
+from . import attrs, codegen, prelude
 from ._filters import (
     AuxData,
     combine,
     combine_leaves,
-    is_data_leaf,
+    is_data,
+    is_leaf,
     partition,
     partition_leaves,
-    partition_leaves_with_path,
-    partition_with_path,
 )
-from ._flatten import register_fieldz, register_generic
-from .prelude import PyTreeProxy, in_registry, register_pytree_prelude
+from .attrs import array, auto, define, field, frozen, register_fieldz, static
+from .codegen import codegen_pytree_functions, register_generic
+from .prelude import PyTreeProxy, register_pytree_prelude
 
 __all__ = [
     "AuxData",
     "PyTreeProxy",
     "array",
+    "attrs",
+    "auto",
+    "codegen",
+    "codegen_pytree_functions",
     "combine",
     "combine_leaves",
     "define",
     "field",
     "frozen",
-    "in_registry",
-    "is_data_leaf",
+    "is_data",
+    "is_leaf",
     "partition",
     "partition_leaves",
-    "partition_leaves_with_path",
-    "partition_with_path",
+    "prelude",
     "register_fieldz",
     "register_generic",
     "register_pytree_prelude",
