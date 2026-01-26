@@ -7,6 +7,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog-config-spec/blob/master/versions/2.2.0/README.md),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2](https://github.com/liblaf/jarp/releases/tag/v0.1.2) - 2026-01-26
+
+### ✨ Features
+
+- **toolz:** add compose_left with JAX pytree support - [4e0f686](https://github.com/liblaf/jarp/commit/4e0f686ea33492696b24c0e1dae8b48022a37961) by [@liblaf](https://github.com/liblaf)
+- **tree:** add pytree registration for MethodType - [94476c2](https://github.com/liblaf/jarp/commit/94476c2448b29392a3e4f0f6f43b914df16c7743) by [@liblaf](https://github.com/liblaf)
+- **tree:** add PyTreeProxy and enhance partitioning utilities - [ed02852](https://github.com/liblaf/jarp/commit/ed02852084b79e3d9d3221962bba6d47d2fc9d4a) by [@liblaf](https://github.com/liblaf)
+- **tree:** add `auto` field and refactor internal structure - [9c37d47](https://github.com/liblaf/jarp/commit/9c37d4752fc5fbde950f4363995a44621ac2ca4f) by [@liblaf](https://github.com/liblaf)
+- **warp:** add JAX-consistent Warp types - [68d641f](https://github.com/liblaf/jarp/commit/68d641f4130d3379e1083d4f78b03d2f8f74ca96) by [@liblaf](https://github.com/liblaf)
+
+### ❤️ Contributors
+
+- [@liblaf](https://github.com/liblaf) made their first contribution
+
 ## [0.1.1](https://github.com/liblaf/jarp/releases/tag/v0.1.1) - 2026-01-25
 
 ### ✨ Features
@@ -21,7 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ❤️ Contributors
 
-- [@liblaf](https://github.com/liblaf) made their first contribution
+- [@liblaf[bot]](https://github.com/apps/liblaf)
+- [@liblaf](https://github.com/liblaf)
 
 ## [0.1.0](https://github.com/liblaf/jarp/releases/tag/v0.1.0) - 2026-01-25
 
