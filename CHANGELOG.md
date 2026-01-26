@@ -7,6 +7,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog-config-spec/blob/master/versions/2.2.0/README.md),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3](https://github.com/liblaf/jarp/releases/tag/v0.1.3) - 2026-01-26
+
+### ✨ Features
+
+- **tree:** support NVIDIA Warp arrays and improve array field specifier - [d6cf605](https://github.com/liblaf/jarp/commit/d6cf605527e6c32b21c734b50de4d1e6b788e0b2) by [@liblaf](https://github.com/liblaf)
+
+### ❤️ Contributors
+
+- [@liblaf](https://github.com/liblaf) made their first contribution
+
 ## [0.1.2](https://github.com/liblaf/jarp/releases/tag/v0.1.2) - 2026-01-26
 
 ### ✨ Features
@@ -19,7 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ❤️ Contributors
 
-- [@liblaf](https://github.com/liblaf) made their first contribution
+- [@liblaf[bot]](https://github.com/apps/liblaf)
+- [@liblaf](https://github.com/liblaf)
 
 ## [0.1.1](https://github.com/liblaf/jarp/releases/tag/v0.1.1) - 2026-01-25
 
