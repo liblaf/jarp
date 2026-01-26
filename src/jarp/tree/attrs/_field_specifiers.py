@@ -34,8 +34,9 @@ class FieldOptions[T](TypedDict, total=False):
 
 def array(**kwargs: Unpack[FieldOptions[ArrayLike | None]]) -> Array:
     if "default" in kwargs and "factory" not in kwargs:
-        # JAX arrays are not hashable, so we should use a default factory
-        default: Array = jnp.asarray(kwargs.pop("default"))
+        default: ArrayLike | None = kwargs.pop("default")  # pyright: ignore[reportAssignmentType]
+        if default is not None:
+            default = jnp.asarray(default)
         kwargs["factory"] = lambda: default
     return field(**kwargs)  # pyright: ignore[reportArgumentType, reportCallIssue]
 
