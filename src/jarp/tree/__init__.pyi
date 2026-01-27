@@ -22,11 +22,12 @@ from .attrs import (
     static,
 )
 from .codegen import codegen_pytree_functions, register_generic
-from .prelude import PyTreeProxy, register_pytree_prelude
+from .prelude import Partial, PyTreeProxy, partial, register_pytree_prelude
 
 __all__ = [
     "AuxData",
     "FieldType",
+    "Partial",
     "PyTreeProxy",
     "PyTreeType",
     "Structure",
@@ -43,6 +44,7 @@ __all__ = [
     "frozen_static",
     "is_data",
     "is_leaf",
+    "partial",
     "partition",
     "partition_leaves",
     "prelude",

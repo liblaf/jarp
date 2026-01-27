@@ -10,11 +10,16 @@ from jarp.tree._filters import is_data
 
 from ._codegen import codegen_flatten, codegen_flatten_with_keys, codegen_unflatten
 
+type _AuxData = tuple[Any, ...]
+type _Children = tuple[Any, ...]
+type _ChildrenWithKeys = tuple[tuple[_KeyEntry, Any], ...]
+type _KeyEntry = Any
 
-class PyTreeFunctions(NamedTuple):
-    flatten: Callable
-    unflatten: Callable
-    flatten_with_keys: Callable
+
+class PyTreeFunctions[T](NamedTuple):
+    flatten: Callable[[T], tuple[_Children, _AuxData]]
+    unflatten: Callable[[_AuxData, _Children], T]
+    flatten_with_keys: Callable[[T], tuple[_ChildrenWithKeys, _AuxData]]
 
 
 def codegen_pytree_functions(

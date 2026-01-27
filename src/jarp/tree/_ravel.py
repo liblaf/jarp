@@ -37,7 +37,7 @@ class Structure[T]:
         data_leaves: list[Array | None]
         meta_leaves: list[Any]
         data_leaves, meta_leaves = partition_leaves(leaves)
-        assert meta_leaves == self.meta_leaves
+        assert tuple(meta_leaves) == self.meta_leaves
         return _ravel(data_leaves)
 
     def unravel(self, flat: T | ArrayLike, dtype: DTypeLike | None = None) -> T:

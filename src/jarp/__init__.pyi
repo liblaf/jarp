@@ -3,6 +3,7 @@ from ._jit import jit
 from ._version import __version__, __version_tuple__
 from .lax import while_loop
 from .tree import (
+    Partial,
     PyTreeProxy,
     Structure,
     array,
@@ -11,6 +12,7 @@ from .tree import (
     field,
     frozen,
     frozen_static,
+    partial,
     ravel,
     register_pytree_prelude,
     static,
@@ -18,6 +20,7 @@ from .tree import (
 from .warp import jax_callable, jax_kernel, to_warp
 
 __all__ = [
+    "Partial",
     "PyTreeProxy",
     "Structure",
     "__version__",
@@ -32,6 +35,7 @@ __all__ = [
     "jax_kernel",
     "jit",
     "lax",
+    "partial",
     "ravel",
     "register_pytree_prelude",
     "static",

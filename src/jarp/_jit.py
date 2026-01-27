@@ -1,9 +1,9 @@
 import functools
-import types
 from collections.abc import Callable, Iterable, Mapping, Sequence
-from typing import Any, Protocol, Self, TypedDict, Unpack, overload
+from typing import Any, Literal, Protocol, Self, TypedDict, Unpack, overload
 
 import jax
+import jax.tree_util as jtu
 
 from jarp import tree
 
@@ -24,16 +24,38 @@ class JitOptions(TypedDict, total=False):
     inline: bool
     compiler_options: dict[str, Any] | None
 
-    filter: bool
+
+class FilterJitOptions(TypedDict, total=False):
+    keep_unused: bool
+    device: Any | None
+    backend: str | None
+    inline: bool
+    compiler_options: dict[str, Any] | None
 
 
 @overload
 def jit[**P, T](
-    fun: Callable[P, T], **kwargs: Unpack[JitOptions]
+    fun: Callable[P, T],
+    /,
+    *,
+    filter: Literal[False] = False,
+    **kwargs: Unpack[JitOptions],
 ) -> Callable[P, T]: ...
 @overload
 def jit[**P, T](
-    **kwargs: Unpack[JitOptions],
+    *, filter: Literal[False] = False, **kwargs: Unpack[JitOptions]
+) -> Callable[[Callable[P, T]], Callable[P, T]]: ...
+@overload
+def jit[**P, T](
+    fun: Callable[P, T],
+    /,
+    *,
+    filter: Literal[True],
+    **kwargs: Unpack[FilterJitOptions],
+) -> Callable[P, T]: ...
+@overload
+def jit[**P, T](
+    *, filter: Literal[True], **kwargs: Unpack[FilterJitOptions]
 ) -> Callable[[Callable[P, T]], Callable[P, T]]: ...
 def jit[**P, T](fun: Callable[P, T] | None = None, **kwargs) -> Callable:
     if fun is None:
@@ -41,11 +63,6 @@ def jit[**P, T](fun: Callable[P, T] | None = None, **kwargs) -> Callable:
     filter_: bool = kwargs.pop("filter", False)
     if not filter_:
         return jax.jit(fun, **kwargs)
-
-    assert "static_argnums" not in kwargs
-    assert "static_argnames" not in kwargs
-    assert "donate_argnums" not in kwargs
-    assert "donate_argnames" not in kwargs
 
     fun_data: _Data
     fun_meta: _Meta[Callable[P, T]]
@@ -104,7 +121,7 @@ class _Outer[**P, T]:
     def __get__(self, instance: Any, owner: type | None = None) -> Callable[..., T]:
         if instance is None:
             return self
-        return types.MethodType(self, instance)
+        return jtu.Partial(self, instance)
 
 
 tree.register_pytree_prelude()
