@@ -6,6 +6,8 @@ import fieldz
 from jarp.tree._filters import is_data
 from jarp.tree.codegen import register_generic
 
+from ._field_specifiers import FieldType
+
 
 def register_fieldz[T: type](
     cls: T,
@@ -17,11 +19,11 @@ def register_fieldz[T: type](
     bypass_setattr: bool | None = None,
 ) -> T:
     if data_fields is None:
-        data_fields = _filter_field_names(_filter_data, cls)
+        data_fields = _filter_field_names(cls, FieldType.DATA)
     if meta_fields is None:
-        meta_fields = _filter_field_names(_filter_meta, cls)
+        meta_fields = _filter_field_names(cls, FieldType.META)
     if auto_fields is None:
-        auto_fields = _filter_field_names(_filter_auto, cls)
+        auto_fields = _filter_field_names(cls, FieldType.AUTO)
     register_generic(
         cls,
         data_fields,
@@ -33,19 +35,9 @@ def register_fieldz[T: type](
     return cls
 
 
-def _filter_field_names(
-    function: Callable[[fieldz.Field], bool], cls: type
-) -> list[str]:
-    return [f.name for f in fieldz.fields(cls) if function(f)]
-
-
-def _filter_data(field: fieldz.Field) -> bool:
-    return not (_filter_auto(field) or _filter_meta(field))
-
-
-def _filter_meta(field: fieldz.Field) -> bool:
-    return field.metadata.get("static", False)
-
-
-def _filter_auto(field: fieldz.Field) -> bool:
-    return field.metadata.get("auto", False)
+def _filter_field_names(cls: type, field_type: FieldType) -> list[str]:
+    return [
+        f.name
+        for f in fieldz.fields(cls)
+        if FieldType(f.metadata.get("static")) is field_type
+    ]

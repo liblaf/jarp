@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import enum
 from collections.abc import Callable, Mapping
 from typing import Any, TypedDict, Unpack
 
@@ -8,6 +9,30 @@ import jax.numpy as jnp
 from jax import Array
 from jax.typing import ArrayLike
 from liblaf import grapes
+
+
+class FieldType(enum.StrEnum):
+    AUTO = enum.auto()
+    DATA = enum.auto()
+    META = enum.auto()
+
+    @classmethod
+    def _missing_(cls, value: object) -> Any:
+        if isinstance(value, str):
+            return cls(value.lower())
+        if value is True:
+            return cls.META
+        if value is False or value is None:
+            return cls.DATA
+        return None
+
+    def __bool__(self) -> bool:
+        match self:
+            case FieldType.META:
+                return True
+            case FieldType.AUTO | FieldType.DATA:
+                # for consistency with `jax.tree_util.register_dataclass`
+                return False
 
 
 class FieldOptions[T](TypedDict, total=False):
@@ -31,6 +56,8 @@ class FieldOptions[T](TypedDict, total=False):
     alias: str | None
     type: type | None
 
+    static: FieldType | bool | None
+
 
 def array(**kwargs: Unpack[FieldOptions[ArrayLike | None]]) -> Array:
     if "default" in kwargs and "factory" not in kwargs:
@@ -43,23 +70,22 @@ def array(**kwargs: Unpack[FieldOptions[ArrayLike | None]]) -> Array:
 
 @grapes.wraps(attrs.field)
 def auto(**kwargs) -> Any:
-    kwargs.setdefault("auto", True)
+    kwargs.setdefault("static", FieldType.AUTO)
     return field(**kwargs)
 
 
 @grapes.wraps(attrs.field)
 def field(**kwargs) -> Any:
-    auto: bool = kwargs.pop("auto", False)
-    static: bool = kwargs.pop("static", False)
-    assert not (auto and static), "Field cannot be both auto and static"
-    if auto:
-        kwargs["metadata"] = {"auto": auto, **kwargs.pop("metadata", {})}
-    if static:
-        kwargs["metadata"] = {"static": static, **kwargs.pop("metadata", {})}
+    if "static" in kwargs:
+        kwargs["metadata"] = {
+            "static": kwargs.pop("static"),
+            **(kwargs.get("metadata") or {}),
+        }
     return attrs.field(**kwargs)
 
 
 @grapes.wraps(attrs.field)
 def static(**kwargs) -> Any:
+    # for consistency with `jax.tree_util.register_dataclass`
     kwargs.setdefault("static", True)
     return field(**kwargs)

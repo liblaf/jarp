@@ -37,7 +37,7 @@ class FfiKernelProtocol(Protocol):
     ) -> Sequence[Array]: ...
 
 
-@tree.frozen(static=True)
+@tree.frozen_static
 class _FfiKernel(FfiKernelProtocol):
     kernel: wp.Kernel
     options: JaxKernelOptions

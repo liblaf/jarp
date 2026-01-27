@@ -8,13 +8,26 @@ from ._filters import (
     partition,
     partition_leaves,
 )
-from .attrs import array, auto, define, field, frozen, register_fieldz, static
+from .attrs import (
+    FieldType,
+    PyTreeType,
+    array,
+    auto,
+    define,
+    field,
+    frozen,
+    frozen_static,
+    register_fieldz,
+    static,
+)
 from .codegen import codegen_pytree_functions, register_generic
 from .prelude import PyTreeProxy, register_pytree_prelude
 
 __all__ = [
     "AuxData",
+    "FieldType",
     "PyTreeProxy",
+    "PyTreeType",
     "array",
     "attrs",
     "auto",
@@ -25,6 +38,7 @@ __all__ = [
     "define",
     "field",
     "frozen",
+    "frozen_static",
     "is_data",
     "is_leaf",
     "partition",

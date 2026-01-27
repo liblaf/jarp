@@ -41,7 +41,7 @@ class FfiCallableProtocol(Protocol):
     ) -> Sequence[Array]: ...
 
 
-@tree.frozen(static=True)
+@tree.frozen_static
 class _FfiCallable(FfiCallableProtocol):
     factory: _FfiCallableFactory
     options: JaxCallableOptions
@@ -89,7 +89,8 @@ def jax_callable(
         return functools.partial(jax_callable, generic=generic, **kwargs)
     if not generic:
         return warp.jax_experimental.jax_callable(func, **kwargs)
-    return _FfiCallable(factory=func, options=kwargs)
+    factory: _FfiCallableFactory = functools.lru_cache(func)
+    return _FfiCallable(factory=factory, options=kwargs)
 
 
 jtu.register_static(_WarpFfiCallable)

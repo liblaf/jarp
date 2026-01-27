@@ -47,7 +47,7 @@ class _InnerProtocol[T](Protocol):
     ) -> tuple[_Data, _Meta[T]]: ...
 
 
-@tree.frozen(static=True)
+@tree.frozen_static
 class _Inner[T](_InnerProtocol[T]):
     fun_meta: _Meta[Callable[..., T]]
 
@@ -65,7 +65,7 @@ class _Inner[T](_InnerProtocol[T]):
         return outputs_data, outputs_meta
 
 
-@tree.define(slots=False, static=False)
+@tree.define(slots=False)
 class _Outer[**P, T]:
     fun_data: _Data
     inner: _InnerProtocol[T]

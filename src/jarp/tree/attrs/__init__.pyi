@@ -1,5 +1,16 @@
-from ._define import define, frozen
-from ._field_specifiers import array, auto, field, static
+from ._define import PyTreeType, define, frozen, frozen_static
+from ._field_specifiers import FieldType, array, auto, field, static
 from ._register import register_fieldz
 
-__all__ = ["array", "auto", "define", "field", "frozen", "register_fieldz", "static"]
+__all__ = [
+    "FieldType",
+    "PyTreeType",
+    "array",
+    "auto",
+    "define",
+    "field",
+    "frozen",
+    "frozen_static",
+    "register_fieldz",
+    "static",
+]

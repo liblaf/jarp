@@ -38,7 +38,7 @@ def combine_leaves(
     ]
 
 
-def partition(obj: Any) -> tuple[list[Array | None], AuxData]:
+def partition[T](obj: T) -> tuple[list[Array | None], AuxData[T]]:
     leaves: list[Any]
     treedef: Any
     leaves, treedef = jax.tree.flatten(obj)
