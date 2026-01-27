@@ -8,6 +8,7 @@ from ._filters import (
     partition,
     partition_leaves,
 )
+from ._ravel import Structure, ravel
 from .attrs import (
     FieldType,
     PyTreeType,
@@ -28,6 +29,7 @@ __all__ = [
     "FieldType",
     "PyTreeProxy",
     "PyTreeType",
+    "Structure",
     "array",
     "attrs",
     "auto",
@@ -44,6 +46,7 @@ __all__ = [
     "partition",
     "partition_leaves",
     "prelude",
+    "ravel",
     "register_fieldz",
     "register_generic",
     "register_pytree_prelude",

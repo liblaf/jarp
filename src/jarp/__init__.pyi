@@ -4,12 +4,14 @@ from ._version import __version__, __version_tuple__
 from .lax import while_loop
 from .tree import (
     PyTreeProxy,
+    Structure,
     array,
     auto,
     define,
     field,
     frozen,
     frozen_static,
+    ravel,
     register_pytree_prelude,
     static,
 )
@@ -17,6 +19,7 @@ from .warp import jax_callable, jax_kernel, to_warp
 
 __all__ = [
     "PyTreeProxy",
+    "Structure",
     "__version__",
     "__version_tuple__",
     "array",
@@ -29,6 +32,7 @@ __all__ = [
     "jax_kernel",
     "jit",
     "lax",
+    "ravel",
     "register_pytree_prelude",
     "static",
     "to_warp",

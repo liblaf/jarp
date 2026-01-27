@@ -97,6 +97,9 @@ testpaths = ["benches", "src", "tests"]
 [tool.ruff]
 extend = ".config/linters/.ruff.toml"
 
+[tool.ruff.lint]
+ignore = ["F722"]
+
 [tool.uv]
 conflicts = [[{ extra = "cuda12" }, { extra = "cuda13" }]]
 default-groups = "all"
