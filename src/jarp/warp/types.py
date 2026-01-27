@@ -20,14 +20,10 @@ def matrix(shape: tuple[int, int]) -> type:
 def __getattr__(name: str) -> type:
     if name == "float_":
         return _default_float_type()
-    result: re.Match[str] | None = re.fullmatch(r"vec(?P<length>[1-9])", name)
-    if result is not None:
+    if (result := re.fullmatch(r"vec(?P<length>[1-9])", name)) is not None:
         length = int(result.group("length"))
         return wp.types.vector(length, _default_float_type())
-    result: re.Match[str] | None = re.fullmatch(
-        r"mat(?P<rows>[1-9])(?P<cols>[1-9])", name
-    )
-    if result is not None:
+    if (result := re.fullmatch(r"mat(?P<rows>[1-9])(?P<cols>[1-9])", name)) is not None:
         rows = int(result.group("rows"))
         cols = int(result.group("cols"))
         return wp.types.matrix((rows, cols), _default_float_type())

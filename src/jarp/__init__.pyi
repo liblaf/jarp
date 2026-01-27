@@ -1,6 +1,7 @@
-from . import toolz, tree, warp
+from . import lax, toolz, tree, warp
 from ._jit import jit
 from ._version import __version__, __version_tuple__
+from .lax import while_loop
 from .tree import (
     PyTreeProxy,
     array,
@@ -8,6 +9,7 @@ from .tree import (
     define,
     field,
     frozen,
+    frozen_static,
     register_pytree_prelude,
     static,
 )
@@ -22,13 +24,16 @@ __all__ = [
     "define",
     "field",
     "frozen",
+    "frozen_static",
     "jax_callable",
     "jax_kernel",
     "jit",
+    "lax",
     "register_pytree_prelude",
     "static",
     "to_warp",
     "toolz",
     "tree",
     "warp",
+    "while_loop",
 ]
