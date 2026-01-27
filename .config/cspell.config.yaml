@@ -20,17 +20,24 @@ words:
   - cuda
   - direnv
   - fieldz
+  - funcs
   - getattr
   - hynek
+  - icosphere
   - inlinehilite
   - jarp
   - jaxtyping
   - kwonlyargs
   - liblaf
+  - linearization
   - mkdocs
   - mkdocstrings
+  - nans
+  - nbytes
   - numprocesses
   - numpy
+  - precond
+  - primals
   - pycache
   - pydantic
   - pydocstyle
@@ -45,6 +52,7 @@ words:
   - pytree
   - pyvista
   - sdist
+  - shardings
   - tombi
   - toolz
   - trimesh

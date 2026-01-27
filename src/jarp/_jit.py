@@ -12,8 +12,19 @@ type _Meta[T] = tree.AuxData[T]
 
 
 class JitOptions(TypedDict, total=False):
-    filter: bool
+    in_shardings: Any
+    out_shardings: Any
+    static_argnums: int | Sequence[int] | None
+    static_argnames: str | Iterable[str] | None
+    donate_argnums: int | Sequence[int] | None
+    donate_argnames: str | Iterable[str] | None
+    keep_unused: bool
+    device: Any | None
+    backend: str | None
     inline: bool
+    compiler_options: dict[str, Any] | None
+
+    filter: bool
 
 
 @overload
@@ -30,6 +41,11 @@ def jit[**P, T](fun: Callable[P, T] | None = None, **kwargs) -> Callable:
     filter_: bool = kwargs.pop("filter", False)
     if not filter_:
         return jax.jit(fun, **kwargs)
+
+    assert "static_argnums" not in kwargs
+    assert "static_argnames" not in kwargs
+    assert "donate_argnums" not in kwargs
+    assert "donate_argnames" not in kwargs
 
     fun_data: _Data
     fun_meta: _Meta[Callable[P, T]]
