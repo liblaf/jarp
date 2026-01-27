@@ -7,6 +7,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog-config-spec/blob/master/versions/2.2.0/README.md),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4](https://github.com/liblaf/jarp/releases/tag/v0.1.4) - 2026-01-27
+
+### ✨ Features
+
+- **lax:** add while_loop with JIT toggle support - [89f302e](https://github.com/liblaf/jarp/commit/89f302eea01ac83c6767b880989de5cb885d4d75) by [@liblaf](https://github.com/liblaf)
+- **tree:** introduce PyTreeType and FieldType enums for improved classification - [21793c8](https://github.com/liblaf/jarp/commit/21793c88533e815a585470f0488307c35f12e568) by [@liblaf](https://github.com/liblaf)
+- **tree:** add ravel and Structure for PyTree linearization - [ccc2288](https://github.com/liblaf/jarp/commit/ccc22888f5fd47335c3b4ecf0600d7b89d05cd63) by [@liblaf](https://github.com/liblaf)
+
+### 🐛 Bug Fixes
+
+- **lax:** initialize module with lazy loading - [c21581e](https://github.com/liblaf/jarp/commit/c21581e4b6b618a77efd0ec1bde8547c15e3cf33) by [@liblaf](https://github.com/liblaf)
+
+### ❤️ Contributors
+
+- [@liblaf](https://github.com/liblaf) made their first contribution
+
 ## [0.1.3](https://github.com/liblaf/jarp/releases/tag/v0.1.3) - 2026-01-26
 
 ### ✨ Features
@@ -15,7 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ❤️ Contributors
 
-- [@liblaf](https://github.com/liblaf) made their first contribution
+- [@liblaf[bot]](https://github.com/apps/liblaf)
+- [@liblaf](https://github.com/liblaf)
 
 ## [0.1.2](https://github.com/liblaf/jarp/releases/tag/v0.1.2) - 2026-01-26
 
