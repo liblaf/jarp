@@ -61,10 +61,11 @@ class FieldOptions[T](TypedDict, total=False):
 
 def array(**kwargs: Unpack[FieldOptions[ArrayLike | None]]) -> Array:
     if "default" in kwargs and "factory" not in kwargs:
-        default: ArrayLike | None = kwargs.pop("default")  # pyright: ignore[reportAssignmentType]
-        if default is not None:
+        default: ArrayLike | None = kwargs["default"]
+        if not (default is None or isinstance(default, attrs.Factory)):  # pyright: ignore[reportArgumentType]
             default = jnp.asarray(default)
-        kwargs["factory"] = lambda: default
+            kwargs.pop("default")
+            kwargs["factory"] = lambda: default
     return field(**kwargs)  # pyright: ignore[reportArgumentType, reportCallIssue]
 
 
