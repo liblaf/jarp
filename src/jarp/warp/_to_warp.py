@@ -37,17 +37,19 @@ def _convert_dtype(dtype: Any, arr_shape: Sequence[int], arr_dtype: Any) -> Any:
 @to_warp.register(np.ndarray)
 def _to_warp_numpy(arr: np.ndarray, dtype: Any = None, **kwargs) -> wp.array:
     dtype = _convert_dtype(dtype, arr.shape, wp.dtype_from_numpy(arr.dtype))
-    scalar_type: Any = type_scalar_type(dtype)
-    arr = np.astype(arr, wp.dtype_to_numpy(scalar_type), copy=False)
+    if dtype is not None:
+        scalar_type: Any = type_scalar_type(dtype)
+        arr = np.astype(arr, wp.dtype_to_numpy(scalar_type), copy=False)
     return wp.from_numpy(arr, dtype, **kwargs)
 
 
 @to_warp.register(jax.Array)
 def _to_warp_jax(arr: jax.Array, dtype: Any = None, **kwargs) -> wp.array:
     dtype = _convert_dtype(dtype, arr.shape, wp.dtype_from_jax(arr.dtype))
+    if dtype is not None:
+        scalar_type: Any = type_scalar_type(dtype)
+        arr: jax.Array = jnp.astype(arr, wp.dtype_to_jax(scalar_type), copy=False)
     requires_grad: bool = kwargs.pop("requires_grad", False)
-    scalar_type: Any = type_scalar_type(dtype)
-    arr: jax.Array = jnp.astype(arr, wp.dtype_to_jax(scalar_type), copy=False)
     arr_wp: wp.array = wp.from_jax(arr, dtype, **kwargs)
     if requires_grad:
         arr_wp.requires_grad = True
