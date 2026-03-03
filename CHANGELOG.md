@@ -7,6 +7,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog-config-spec/blob/master/versions/2.2.0/README.md),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.6](https://github.com/liblaf/jarp/releases/tag/v0.1.6) - 2026-03-03
+
+### 🐛 Bug Fixes
+
+- **warp:** cast arrays to target scalar type before conversion - [3cada97](https://github.com/liblaf/jarp/commit/3cada975d48dd6fbda3eaeedeb219b0f4a8a4eef) by [@liblaf](https://github.com/liblaf)
+- **warp:** handle optional dtype in array conversions - [068ed3c](https://github.com/liblaf/jarp/commit/068ed3c3b1d840f54ce116644c573c7c62887908) by [@liblaf](https://github.com/liblaf)
+
+### ❤️ Contributors
+
+- [@liblaf](https://github.com/liblaf)
+- [@renovate[bot]](https://github.com/apps/renovate) made their first contribution in [#14](https://github.com/liblaf/jarp/pull/14)
+- [@liblaf[bot]](https://github.com/apps/liblaf)
+
 ## [0.1.5](https://github.com/liblaf/jarp/releases/tag/v0.1.5) - 2026-01-27
 
 ### ✨ Features
@@ -16,7 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ❤️ Contributors
 
-- [@liblaf](https://github.com/liblaf) made their first contribution
+- [@liblaf[bot]](https://github.com/apps/liblaf)
+- [@liblaf](https://github.com/liblaf)
 
 ## [0.1.4](https://github.com/liblaf/jarp/releases/tag/v0.1.4) - 2026-01-27
 
