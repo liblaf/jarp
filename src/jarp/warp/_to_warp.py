@@ -3,8 +3,10 @@ from collections.abc import Sequence
 from typing import Any
 
 import jax
+import jax.numpy as jnp
 import numpy as np
 import warp as wp
+from warp._src.types import type_scalar_type
 
 
 @functools.singledispatch
@@ -35,6 +37,8 @@ def _convert_dtype(dtype: Any, arr_shape: Sequence[int], arr_dtype: Any) -> Any:
 @to_warp.register(np.ndarray)
 def _to_warp_numpy(arr: np.ndarray, dtype: Any = None, **kwargs) -> wp.array:
     dtype = _convert_dtype(dtype, arr.shape, wp.dtype_from_numpy(arr.dtype))
+    scalar_type: Any = type_scalar_type(dtype)
+    arr = np.astype(arr, wp.dtype_to_numpy(scalar_type), copy=False)
     return wp.from_numpy(arr, dtype, **kwargs)
 
 
@@ -42,6 +46,8 @@ def _to_warp_numpy(arr: np.ndarray, dtype: Any = None, **kwargs) -> wp.array:
 def _to_warp_jax(arr: jax.Array, dtype: Any = None, **kwargs) -> wp.array:
     dtype = _convert_dtype(dtype, arr.shape, wp.dtype_from_jax(arr.dtype))
     requires_grad: bool = kwargs.pop("requires_grad", False)
+    scalar_type: Any = type_scalar_type(dtype)
+    arr: jax.Array = jnp.astype(arr, wp.dtype_to_jax(scalar_type), copy=False)
     arr_wp: wp.array = wp.from_jax(arr, dtype, **kwargs)
     if requires_grad:
         arr_wp.requires_grad = True

@@ -1,4 +1,4 @@
-float_: type
+floating: type
 vec2: type
 vec3: type
 vec4: type
