@@ -7,6 +7,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog-config-spec/blob/master/versions/2.2.0/README.md),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.7](https://github.com/liblaf/jarp/releases/tag/v0.1.7) - 2026-03-03
+
+### 🐛 Bug Fixes
+
+- **tree:** improve default value handling in array field specifier - [98620cb](https://github.com/liblaf/jarp/commit/98620cba4b568c81369bafe78336783bee5da0c7) by [@liblaf](https://github.com/liblaf)
+
+### ❤️ Contributors
+
+- [@liblaf](https://github.com/liblaf)
+
 ## [0.1.6](https://github.com/liblaf/jarp/releases/tag/v0.1.6) - 2026-03-03
 
 ### 🐛 Bug Fixes
@@ -16,9 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ❤️ Contributors
 
+- [@liblaf[bot]](https://github.com/apps/liblaf)
 - [@liblaf](https://github.com/liblaf)
 - [@renovate[bot]](https://github.com/apps/renovate) made their first contribution in [#14](https://github.com/liblaf/jarp/pull/14)
-- [@liblaf[bot]](https://github.com/apps/liblaf)
 
 ## [0.1.5](https://github.com/liblaf/jarp/releases/tag/v0.1.5) - 2026-01-27
 
