@@ -7,6 +7,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog-config-spec/blob/master/versions/2.2.0/README.md),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.8](https://github.com/liblaf/jarp/releases/tag/v0.1.8) - 2026-03-23
+
+### 🐛 Bug Fixes
+
+- **tree:** handle empty pytrees when raveling - [b600ac4](https://github.com/liblaf/jarp/commit/b600ac4a98e27caeacee028fb4fea6d161ac292e) by [@liblaf](https://github.com/liblaf)
+- **tree:** add kw_only to decorator overloads - [7d47be9](https://github.com/liblaf/jarp/commit/7d47be98b18edee49816e2a9f632271be9baf01e) by [@liblaf](https://github.com/liblaf)
+
+### 🛠 Builds
+
+- switch project automation to uv and nox - [f7c5e22](https://github.com/liblaf/jarp/commit/f7c5e22d41be5cef4708635f54d362d37c999bba) by [@liblaf](https://github.com/liblaf)
+
+### ❤️ Contributors
+
+- [@liblaf](https://github.com/liblaf)
+
 ## [0.1.7](https://github.com/liblaf/jarp/releases/tag/v0.1.7) - 2026-03-03
 
 ### 🐛 Bug Fixes
@@ -15,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ❤️ Contributors
 
+- [@liblaf[bot]](https://github.com/apps/liblaf)
 - [@liblaf](https://github.com/liblaf)
 
 ## [0.1.6](https://github.com/liblaf/jarp/releases/tag/v0.1.6) - 2026-03-03
