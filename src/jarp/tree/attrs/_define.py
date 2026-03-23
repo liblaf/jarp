@@ -54,12 +54,17 @@ class DefineOptions(TypedDict, total=False):
     pytree: PyTreeType | Literal["data", "none", "static"] | bool | None
 
 
+# TODO: remove `kw_only` once <https://github.com/astral-sh/ty/issues/3115> is fixed
 @overload
 @dataclass_transform(field_specifiers=(attrs.field, array, auto, field, static))
-def define[T: type](cls: T, /, **kwargs: Unpack[DefineOptions]) -> T: ...
+def define[T: type](
+    cls: T, /, *, kw_only: bool = False, **kwargs: Unpack[DefineOptions]
+) -> T: ...
 @overload
 @dataclass_transform(field_specifiers=(attrs.field, array, auto, field, static))
-def define[T: type](**kwargs: Unpack[DefineOptions]) -> Callable[[T], T]: ...
+def define[T: type](
+    cls: None = None, *, kw_only: bool = False, **kwargs: Unpack[DefineOptions]
+) -> Callable[[T], T]: ...
 def define[T: type](maybe_cls: T | None = None, **kwargs) -> Any:
     if maybe_cls is None:
         return functools.partial(define, **kwargs)
@@ -83,12 +88,16 @@ def define[T: type](maybe_cls: T | None = None, **kwargs) -> Any:
 @dataclass_transform(
     frozen_default=True, field_specifiers=(attrs.field, array, auto, field, static)
 )
-def frozen[T: type](cls: T, /, **kwargs: Unpack[DefineOptions]) -> T: ...
+def frozen[T: type](
+    cls: T, /, *, kw_only: bool = False, **kwargs: Unpack[DefineOptions]
+) -> T: ...
 @overload
 @dataclass_transform(
     frozen_default=True, field_specifiers=(attrs.field, array, auto, field, static)
 )
-def frozen[T: type](**kwargs: Unpack[DefineOptions]) -> Callable[[T], T]: ...
+def frozen[T: type](
+    cls: None = None, /, *, kw_only: bool = False, **kwargs: Unpack[DefineOptions]
+) -> Callable[[T], T]: ...
 def frozen[T: type](maybe_cls: T | None = None, **kwargs) -> Any:
     _warnings_hide = True
     if maybe_cls is None:
@@ -101,12 +110,16 @@ def frozen[T: type](maybe_cls: T | None = None, **kwargs) -> Any:
 @dataclass_transform(
     frozen_default=True, field_specifiers=(attrs.field, array, auto, field, static)
 )
-def frozen_static[T: type](cls: T, /, **kwargs: Unpack[DefineOptions]) -> T: ...
+def frozen_static[T: type](
+    cls: T, /, *, kw_only: bool = False, **kwargs: Unpack[DefineOptions]
+) -> T: ...
 @overload
 @dataclass_transform(
     frozen_default=True, field_specifiers=(attrs.field, array, auto, field, static)
 )
-def frozen_static[T: type](**kwargs: Unpack[DefineOptions]) -> Callable[[T], T]: ...
+def frozen_static[T: type](
+    cls: None = None, /, *, kw_only: bool = False, **kwargs: Unpack[DefineOptions]
+) -> Callable[[T], T]: ...
 def frozen_static[T: type](maybe_cls: T | None = None, **kwargs) -> Any:
     _warnings_hide = True
     if maybe_cls is None:
