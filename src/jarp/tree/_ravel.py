@@ -4,7 +4,7 @@ from typing import Any, cast
 import jax
 import jax.numpy as jnp
 import jax.tree_util as jtu
-from jaxtyping import Array, ArrayLike, DTypeLike, Shaped
+from jaxtyping import Array, DTypeLike, Shaped
 
 from ._filters import combine_leaves, partition_leaves
 from .attrs import frozen_static
@@ -36,7 +36,7 @@ class Structure[T]:
         assert tuple(meta_leaves) == self.meta_leaves
         return _ravel(data_leaves)
 
-    def unravel(self, flat: T | ArrayLike, dtype: DTypeLike | None = None) -> T:
+    def unravel(self, flat: T | Array, dtype: DTypeLike | None = None) -> T:
         if not isinstance(flat, Array):
             # do not unravel if already a pytree
             assert jax.tree.structure(flat) == self.treedef
@@ -75,7 +75,10 @@ def _offsets_from_leaves(leaves: Iterable[Any | None]) -> tuple[int, ...]:
 
 @jax.jit
 def _ravel(leaves: Iterable[Array | None]) -> Array:
-    return jnp.concatenate([leaf for leaf in leaves if leaf is not None], axis=None)
+    leaves: list[Array] = [leaf for leaf in leaves if leaf is not None]
+    if not leaves:
+        return jnp.empty((0,), dtype=jnp.float32)
+    return jnp.concatenate(leaves, axis=None)
 
 
 def _shapes_from_leaves(leaves: Iterable[Any | None]) -> tuple[Shape | None, ...]:

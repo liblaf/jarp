@@ -1,6 +1,7 @@
 from typing import Any
 
 import nox
+import warp as wp
 from liblaf import nox_recipes as recipes
 from liblaf.nox_recipes import Resolution
 
@@ -21,5 +22,8 @@ PYTHON_VERSIONS: list[str] = nox.project.python_versions(PYPROJECT)
     ],
 )
 def test(s: nox.Session, resolution: Resolution | None) -> None:
-    recipes.setup_uv(s, extras=["cuda13"], groups=["test"], resolution=resolution)
+    extras: list[str] = []
+    if wp.is_cuda_available():
+        extras.append("cuda13")
+    recipes.setup_uv(s, extras=extras, groups=["test"], resolution=resolution)
     recipes.pytest(s, suppress_no_test_exit_code=True)

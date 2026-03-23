@@ -24,3 +24,12 @@ def test_ravel() -> None:
     np.testing.assert_allclose(recon["a"], jnp.zeros((3,)))
     np.testing.assert_allclose(recon["b"], jnp.ones((4,)))
     assert recon["static"] == obj["static"]
+
+
+def test_ravel_empty() -> None:
+    obj: dict[str, Any] = {"static": "foo"}
+    flat, structure = jarp.ravel(obj)
+    assert flat.shape == (0,)
+
+    recon: dict[str, Any] = structure.unravel(flat)
+    assert recon == {"static": "foo"}
