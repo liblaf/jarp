@@ -22,8 +22,6 @@ jarp.tree.register_generic(A, ["a"], ["b"], ["c", "d"])
 
 def test_register_generic() -> None:
     a = A()
-    leaves: list[Any]
-    treedef: Any
     leaves, treedef = jax.tree.flatten(a)
     assert len(leaves) == 2
     np.testing.assert_allclose(leaves[0], a.a)
@@ -35,7 +33,6 @@ def test_register_generic() -> None:
     np.testing.assert_allclose(a_recon.c, a.c)
     assert a_recon.d == a.d
 
-    leaves_with_path: list[tuple[Any, Any]]
     leaves_with_path, treedef = jax.tree.flatten_with_path(a)
     leaves: list[Any] = [leaf for _, leaf in leaves_with_path]
     assert len(leaves) == 2

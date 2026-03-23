@@ -8,7 +8,8 @@ import attrs
 import jax.numpy as jnp
 from jax import Array
 from jax.typing import ArrayLike
-from liblaf import grapes
+
+from ._utils import _wraps
 
 
 class FieldType(enum.StrEnum):
@@ -52,7 +53,7 @@ class FieldOptions[T](TypedDict, total=False):
     kw_only: bool | None
     eq: attrs._EqOrderType | None
     order: attrs._EqOrderType | None
-    on_setattr: attrs._OnSetAttrArgType | None
+    on_setattr: attrs._OnSetAttrArgType | None  # ty:ignore[invalid-type-form]
     alias: str | None
     type: type | None
 
@@ -62,20 +63,20 @@ class FieldOptions[T](TypedDict, total=False):
 def array(**kwargs: Unpack[FieldOptions[ArrayLike | None]]) -> Array:
     if "default" in kwargs and "factory" not in kwargs:
         default: ArrayLike | None = kwargs["default"]
-        if not (default is None or isinstance(default, attrs.Factory)):  # pyright: ignore[reportArgumentType]
-            default = jnp.asarray(default)
+        if not (default is None or isinstance(default, attrs.Factory)):  # ty:ignore[invalid-argument-type]
+            default: Array = jnp.asarray(default)
             kwargs.pop("default")
             kwargs["factory"] = lambda: default
-    return field(**kwargs)  # pyright: ignore[reportArgumentType, reportCallIssue]
+    return field(**kwargs)
 
 
-@grapes.wraps(attrs.field)
+@_wraps(attrs.field)
 def auto(**kwargs) -> Any:
     kwargs.setdefault("static", FieldType.AUTO)
     return field(**kwargs)
 
 
-@grapes.wraps(attrs.field)
+@_wraps(attrs.field)
 def field(**kwargs) -> Any:
     if "static" in kwargs:
         kwargs["metadata"] = {
@@ -85,7 +86,7 @@ def field(**kwargs) -> Any:
     return attrs.field(**kwargs)
 
 
-@grapes.wraps(attrs.field)
+@_wraps(attrs.field)
 def static(**kwargs) -> Any:
     # for consistency with `jax.tree_util.register_dataclass`
     kwargs.setdefault("static", True)

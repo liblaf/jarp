@@ -26,14 +26,13 @@ classifiers = [
   "Typing :: Typed"
 ]
 dependencies = [
-  "attrs>=25,<26",
-  "fieldz>=0.2,<0.3",
-  "jax>=0.9,<0.10",
-  "jaxtyping>=0.3,<0.4",
-  "lazy-loader>=0.4,<0.5",
-  "liblaf-grapes>=9,<10",
-  "warp-lang>=1,<2",
-  "wrapt>=2,<3"
+  "attrs>=25",
+  "fieldz>=0.1",
+  "jax>=0.9",
+  "jaxtyping>=0.3",
+  "lazy-loader>=0.1",
+  "warp-lang>=1.12",
+  "wrapt>=2"
 ]
 dynamic = ["version"]
 
@@ -48,14 +47,21 @@ dynamic = ["version"]
 "Source Code" = "https://github.com/liblaf/jarp"
 
 [project.optional-dependencies]
-cuda12 = ["jax[cuda12]>=0.9,<0.10"]
-cuda13 = ["jax[cuda13]>=0.9,<0.10"]
+cuda12 = ["jax[cuda12]>=0.9"]
+cuda13 = ["jax[cuda13]>=0.9"]
 
 [dependency-groups]
-dev = ["equinox>=0.13,<0.14", "toolz-stubs>=0.3,<0.4"]
-build = ["check-wheel-contents>=0.6,<0.7", "hatch>=1,<2", "twine>=6,<7"]
-docs = ["liblaf-mkdocs-preset>=0.3,<0.4", "mkdocs>=1,<2"]
-test = ["liblaf-pytest-preset>=0.1,<0.2", "pytest>=9,<10"]
+dev = ["equinox>=0.13", "toolz-stubs>=0.3"]
+build = ["check-wheel-contents>=0.6", "hatch>=1", "twine>=6"]
+docs = ["liblaf-mkdocs-preset>=0.3", "mkdocs>=1,<2"]
+nox = ["liblaf-nox-recipes>=0.1", "nox>=2026"]
+test = [
+  "pytest>=9,<10",
+  "pytest-cov>=7",
+  "pytest-randomly>=4",
+  { include-group = "dev" },
+  { include-group = "nox" }
+]
 
 [build-system]
 requires = ["hatch-vcs", "hatchling"]
@@ -86,11 +92,12 @@ extends = ".config/linters/pyrightconfig.json"
 [tool.pytest]
 addopts = [
   "--doctest-modules",
-  "--hypothesis-explain",
   "--import-mode=importlib",
+  "--junitxml=junit.xml",
   "--showlocals"
 ]
 consider_namespace_packages = true
+junit_family = "legacy"
 strict = true
 testpaths = ["benches", "src", "tests"]
 

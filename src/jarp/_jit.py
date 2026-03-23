@@ -76,7 +76,7 @@ def jit[**P, T](fun: Callable[P, T] | None = None, **kwargs) -> Callable:
 
 class _InnerProtocol[T](Protocol):
     def __call__(
-        self, inputs_dynamic: _Data, fun_dynamic: _Data, inputs_static: _Meta
+        self, inputs_data: _Data, fun_data: _Data, inputs_meta: _Meta, /
     ) -> tuple[_Data, _Meta[T]]: ...
 
 

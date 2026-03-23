@@ -20,8 +20,6 @@ class A:
 
 def test_pytree_method() -> None:
     a = A()
-    leaves: list[Any]
-    treedef: Any
     leaves, treedef = jax.tree.flatten(a.method)
     assert len(leaves) == 1
     np.testing.assert_allclose(leaves[0], a.data)
@@ -30,7 +28,6 @@ def test_pytree_method() -> None:
     assert isinstance(method_recon.__self__, A)
     assert method_recon.__func__ == A.method
 
-    leaves_with_path: list[tuple[Any, Any]]
     leaves_with_path, treedef = jax.tree.flatten_with_path(a.method)
     assert len(leaves_with_path) == 1
     paths: list[Any] = [path for path, _ in leaves_with_path]

@@ -17,5 +17,5 @@ def while_loop[T](
         return jax.lax.while_loop(cond_fun, body_fun, init_val)
     val: T = init_val
     while cond_fun(val):
-        val = body_fun(val)
+        val: T = body_fun(val)
     return val

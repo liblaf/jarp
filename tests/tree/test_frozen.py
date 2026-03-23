@@ -18,8 +18,6 @@ class A:
 
 def test_flatten() -> None:
     a = A()
-    leaves: list[Leaf]
-    treedef: PyTreeDef
     leaves, treedef = jax.tree.flatten(a)
     assert len(leaves) == 1
     np.testing.assert_allclose(leaves[0], a.x)
@@ -30,8 +28,6 @@ def test_flatten() -> None:
 
 def test_flatten_with_keys() -> None:
     a = A()
-    leaves_with_path: list[tuple[jtu.KeyPath, Leaf]]
-    treedef: PyTreeDef
     leaves_with_path, treedef = jax.tree.flatten_with_path(a)
     assert len(leaves_with_path) == 1
     assert leaves_with_path[0][0] == (jtu.GetAttrKey("x"),)

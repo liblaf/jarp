@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import enum
 import functools
+import warnings
 from collections.abc import Callable
 from typing import Any, Literal, TypedDict, Unpack, dataclass_transform, overload
 
 import attrs
 import jax.tree_util as jtu
-from liblaf import grapes
 
 from ._field_specifiers import array, auto, field, static
 from ._register import register_fieldz
@@ -47,7 +47,7 @@ class DefineOptions(TypedDict, total=False):
     order: bool | None
     auto_detect: bool
     getstate_setstate: bool | None
-    on_setattr: attrs._OnSetAttrArgType | None
+    on_setattr: attrs._OnSetAttrArgType | None  # ty:ignore[invalid-type-form]
     field_transformer: attrs._FieldTransformer | None
     match_args: bool
 
@@ -60,17 +60,17 @@ def define[T: type](cls: T, /, **kwargs: Unpack[DefineOptions]) -> T: ...
 @overload
 @dataclass_transform(field_specifiers=(attrs.field, array, auto, field, static))
 def define[T: type](**kwargs: Unpack[DefineOptions]) -> Callable[[T], T]: ...
-def define[T: type](maybe_cls: T | None = None, **kwargs) -> T | Callable:
-    _warnings_hide = True
+def define[T: type](maybe_cls: T | None = None, **kwargs) -> Any:
     if maybe_cls is None:
         return functools.partial(define, **kwargs)
     pytree: PyTreeType = PyTreeType(kwargs.pop("pytree", None))
     frozen: bool = kwargs.get("frozen", False)
     if pytree is PyTreeType.STATIC and not frozen:
-        grapes.warnings.warn(
-            "Defining a static class that is not frozen may lead to unexpected behavior."
+        warnings.warn(
+            "Defining a static class that is not frozen may lead to unexpected behavior.",
+            stacklevel=2,
         )
-    cls: T = grapes.attrs.define(maybe_cls, **kwargs)
+    cls: T = attrs.define(maybe_cls, **kwargs)  # ty:ignore[invalid-assignment]
     match pytree:
         case PyTreeType.DATA:
             register_fieldz(cls)
@@ -89,7 +89,7 @@ def frozen[T: type](cls: T, /, **kwargs: Unpack[DefineOptions]) -> T: ...
     frozen_default=True, field_specifiers=(attrs.field, array, auto, field, static)
 )
 def frozen[T: type](**kwargs: Unpack[DefineOptions]) -> Callable[[T], T]: ...
-def frozen[T: type](maybe_cls: T | None = None, **kwargs) -> T | Callable:
+def frozen[T: type](maybe_cls: T | None = None, **kwargs) -> Any:
     _warnings_hide = True
     if maybe_cls is None:
         return functools.partial(frozen, **kwargs)
@@ -107,7 +107,7 @@ def frozen_static[T: type](cls: T, /, **kwargs: Unpack[DefineOptions]) -> T: ...
     frozen_default=True, field_specifiers=(attrs.field, array, auto, field, static)
 )
 def frozen_static[T: type](**kwargs: Unpack[DefineOptions]) -> Callable[[T], T]: ...
-def frozen_static[T: type](maybe_cls: T | None = None, **kwargs) -> T | Callable:
+def frozen_static[T: type](maybe_cls: T | None = None, **kwargs) -> Any:
     _warnings_hide = True
     if maybe_cls is None:
         return functools.partial(frozen_static, **kwargs)

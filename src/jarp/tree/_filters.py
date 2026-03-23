@@ -1,16 +1,16 @@
 from collections.abc import Iterable
 from typing import Any
 
+import attrs
 import jax
 import jax.tree_util as jtu
 from jax import Array
 from jax._src.tree_util import _registry
-from liblaf import grapes
 from typing_extensions import TypeIs
 
 
 @jtu.register_static
-@grapes.attrs.frozen
+@attrs.frozen
 class AuxData[T]:
     meta_leaves: tuple[Any, ...]
     treedef: Any

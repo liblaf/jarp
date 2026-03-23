@@ -2,15 +2,12 @@ from typing import Any
 
 import jax.numpy as jnp
 import numpy as np
-from jaxtyping import Array, Float
 
 import jarp
 
 
 def test_ravel() -> None:
     obj: dict[str, Any] = {"a": jnp.zeros((3,)), "b": jnp.ones((4,)), "static": "foo"}
-    flat: Float[Array, " N"]
-    structure: jarp.Structure[dict[str, Any]]
     flat, structure = jarp.ravel(obj)
     assert flat.shape == (7,)
 

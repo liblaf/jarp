@@ -60,20 +60,20 @@ class _FfiKernel(FfiKernelProtocol):
 @overload
 def jax_kernel(
     *,
-    arg_types_factory: ArgTypes | Callable[[WarpScalarDType], ArgTypes] | None = None,
+    arg_types_factory: Callable[[WarpScalarDType], ArgTypes] | None = None,
     **kwargs: Unpack[JaxKernelOptions],
 ) -> Callable[[Callable], FfiKernelProtocol]: ...
 @overload
 def jax_kernel(
     kernel: Callable,
     *,
-    arg_types_factory: ArgTypes | Callable[[WarpScalarDType], ArgTypes] | None = None,
+    arg_types_factory: Callable[[WarpScalarDType], ArgTypes] | None = None,
     **kwargs: Unpack[JaxKernelOptions],
 ) -> FfiKernelProtocol: ...
 def jax_kernel(
     kernel: Callable | None = None,
     *,
-    arg_types_factory: ArgTypes | Callable[[WarpScalarDType], ArgTypes] | None = None,
+    arg_types_factory: Callable[[WarpScalarDType], ArgTypes] | None = None,
     **kwargs: Unpack[JaxKernelOptions],
 ) -> Any:
     if kernel is None:
@@ -82,13 +82,9 @@ def jax_kernel(
         )
     if arg_types_factory is None:
         return warp.jax_experimental.jax_kernel(kernel, **kwargs)
-    if not callable(arg_types_factory):
-        return warp.jax_experimental.jax_kernel(
-            wp.overload(kernel, arg_types_factory), **kwargs
-        )
     return _FfiKernel(
         kernel=cast("wp.Kernel", kernel),
-        options=kwargs,
+        options=kwargs,  # ty:ignore[invalid-argument-type]
         arg_types_factory=arg_types_factory,
     )
 

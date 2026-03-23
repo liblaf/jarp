@@ -36,7 +36,7 @@ def _convert_dtype(dtype: Any, arr_shape: Sequence[int], arr_dtype: Any) -> Any:
 
 @to_warp.register(np.ndarray)
 def _to_warp_numpy(arr: np.ndarray, dtype: Any = None, **kwargs) -> wp.array:
-    dtype = _convert_dtype(dtype, arr.shape, wp.dtype_from_numpy(arr.dtype))
+    dtype: Any = _convert_dtype(dtype, arr.shape, wp.dtype_from_numpy(arr.dtype))
     if dtype is not None:
         scalar_type: Any = type_scalar_type(dtype)
         arr = np.astype(arr, wp.dtype_to_numpy(scalar_type), copy=False)
@@ -45,7 +45,7 @@ def _to_warp_numpy(arr: np.ndarray, dtype: Any = None, **kwargs) -> wp.array:
 
 @to_warp.register(jax.Array)
 def _to_warp_jax(arr: jax.Array, dtype: Any = None, **kwargs) -> wp.array:
-    dtype = _convert_dtype(dtype, arr.shape, wp.dtype_from_jax(arr.dtype))
+    dtype: Any = _convert_dtype(dtype, arr.shape, wp.dtype_from_jax(arr.dtype))
     if dtype is not None:
         scalar_type: Any = type_scalar_type(dtype)
         arr: jax.Array = jnp.astype(arr, wp.dtype_to_jax(scalar_type), copy=False)

@@ -90,7 +90,7 @@ def jax_callable(
     if not generic:
         return warp.jax_experimental.jax_callable(func, **kwargs)
     factory: _FfiCallableFactory = functools.lru_cache(func)
-    return _FfiCallable(factory=factory, options=kwargs)
+    return _FfiCallable(factory=factory, options=kwargs)  # ty:ignore[invalid-argument-type]
 
 
 jtu.register_static(_WarpFfiCallable)

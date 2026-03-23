@@ -30,12 +30,8 @@ class Structure[T]:
         if isinstance(tree, Array):
             # do not flatten if already flat
             return jnp.ravel(tree)
-        leaves: list[Any]
-        treedef: PyTreeDef
         leaves, treedef = jax.tree.flatten(tree)
         assert treedef == self.treedef
-        data_leaves: list[Array | None]
-        meta_leaves: list[Any]
         data_leaves, meta_leaves = partition_leaves(leaves)
         assert tuple(meta_leaves) == self.meta_leaves
         return _ravel(data_leaves)
@@ -54,11 +50,7 @@ class Structure[T]:
 
 
 def ravel[T](tree: T) -> tuple[Array, Structure[T]]:
-    leaves: list[Any]
-    treedef: PyTreeDef
     leaves, treedef = jax.tree.flatten(tree)
-    dynamic_leaves: list[Any | None]
-    static_leaves: list[Any | None]
     dynamic_leaves, static_leaves = partition_leaves(leaves)
     flat: Array = _ravel(dynamic_leaves)
     structure: Structure[T] = Structure(

@@ -19,11 +19,11 @@ def register_fieldz[T: type](
     bypass_setattr: bool | None = None,
 ) -> T:
     if data_fields is None:
-        data_fields = _filter_field_names(cls, FieldType.DATA)
+        data_fields: list[str] = _filter_field_names(cls, FieldType.DATA)
     if meta_fields is None:
-        meta_fields = _filter_field_names(cls, FieldType.META)
+        meta_fields: list[str] = _filter_field_names(cls, FieldType.META)
     if auto_fields is None:
-        auto_fields = _filter_field_names(cls, FieldType.AUTO)
+        auto_fields: list[str] = _filter_field_names(cls, FieldType.AUTO)
     register_generic(
         cls,
         data_fields,

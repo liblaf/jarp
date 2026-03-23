@@ -1,5 +1,3 @@
-from typing import Any
-
 import jax
 import jax.numpy as jnp
 import jax.tree_util as jtu
@@ -19,7 +17,6 @@ class A:
 def test_flatten_auto_is_data() -> None:
     a = A()
     a.c = jnp.zeros(())
-    leaves: list[Array]
     leaves, _treedef = jax.tree.flatten(a)
     assert len(leaves) == 2
     np.testing.assert_allclose(leaves[0], a.a)
@@ -28,7 +25,6 @@ def test_flatten_auto_is_data() -> None:
 
 def test_flatten_auto_is_meta() -> None:
     a = A()
-    leaves: list[Array]
     leaves, _treedef = jax.tree.flatten(a)
     assert len(leaves) == 1
     np.testing.assert_allclose(leaves[0], a.a)
@@ -36,7 +32,6 @@ def test_flatten_auto_is_meta() -> None:
 
 def test_flatten_with_keys_auto_is_data() -> None:
     a = A()
-    leaves_with_path: list[tuple[jtu.KeyPath, Array]]
     leaves_with_path, _treedef = jax.tree.flatten_with_path(a)
     assert len(leaves_with_path) == 1
     paths: list[jtu.KeyPath] = [path for path, _ in leaves_with_path]
@@ -48,7 +43,6 @@ def test_flatten_with_keys_auto_is_data() -> None:
 def test_flatten_with_keys_auto_is_meta() -> None:
     a = A()
     a.c = jnp.zeros(())
-    leaves_with_path: list[tuple[jtu.KeyPath, Array]]
     leaves_with_path, _treedef = jax.tree.flatten_with_path(a)
     assert len(leaves_with_path) == 2
     paths: list[jtu.KeyPath] = [path for path, _ in leaves_with_path]
@@ -62,8 +56,6 @@ def test_flatten_with_keys_auto_is_meta() -> None:
 def test_unflatten_auto_is_data() -> None:
     a = A()
     a.c = jnp.zeros(())
-    leaves: list[Array]
-    treedef: Any
     leaves, treedef = jax.tree.flatten(a)
     a_recon: A = jax.tree.unflatten(treedef, leaves)
     np.testing.assert_allclose(a_recon.a, a.a)
@@ -74,8 +66,6 @@ def test_unflatten_auto_is_data() -> None:
 
 def test_unflatten_auto_is_meta() -> None:
     a = A()
-    leaves: list[Array]
-    treedef: Any
     leaves, treedef = jax.tree.flatten(a)
     a_recon: A = jax.tree.unflatten(treedef, leaves)
     np.testing.assert_allclose(a_recon.a, a.a)
