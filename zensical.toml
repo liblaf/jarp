@@ -4,7 +4,7 @@
 # Basics
 site_name = "Jarp"
 site_url = "__SITE_URL__"
-site_description = ""
+site_description = "Python utilities for JAX and Warp with filtered jit, pytree helpers, and array-to-Warp conversion."
 site_author = "liblaf"
 # Navigation
 nav = [

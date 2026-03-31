@@ -53,7 +53,24 @@ def jit[**P, T](
 def jit[**P, T](
     *, filter: Literal[True], **kwargs: Unpack[FilterJitOptions]
 ) -> Callable[[Callable[P, T]], Callable[P, T]]: ...
-def jit[**P, T](fun: Callable[P, T] | None = None, **kwargs) -> Callable:
+def jit[**P, T](fun: Callable[P, T] | None = None, **kwargs: Any) -> Callable:
+    """Compile a callable with JAX, optionally preserving static PyTree leaves.
+
+    When ``filter=False`` this is a thin wrapper around :func:`jax.jit`.
+    When ``filter=True`` the function and its inputs are partitioned into
+    dynamic array leaves and static metadata so mixed PyTrees can cross the JIT
+    boundary without requiring manual ``static_argnums`` wiring.
+
+    Args:
+        fun: Callable to compile. When omitted, return a decorator.
+        **kwargs: Options forwarded to :func:`jax.jit`. With ``filter=True``,
+            only the subset in :class:`FilterJitOptions` is supported because
+            static argument handling is managed internally.
+
+    Returns:
+        A compiled callable or decorator with the same public call signature as
+        ``fun``.
+    """
     if fun is None:
         return functools.partial(jit, **kwargs)
     filter_: bool = kwargs.pop("filter", False)
@@ -78,6 +95,8 @@ class _InnerProtocol[T](Protocol):
 
 @tree.frozen_static
 class _Inner[T](_InnerProtocol[T]):
+    """Rebuild the original callable inside the compiled function body."""
+
     fun_meta: _Meta[Callable[..., T]]
 
     def __call__(
@@ -96,6 +115,8 @@ class _Inner[T](_InnerProtocol[T]):
 
 @tree.define(slots=False)
 class _Outer[**P, T]:
+    """Bind static function metadata around the compiled inner callable."""
+
     fun_data: _Data
     inner: _InnerProtocol[T]
 

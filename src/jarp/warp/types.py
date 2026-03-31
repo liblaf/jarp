@@ -1,4 +1,5 @@
 # ref: <https://numpy.org/doc/stable/reference/arrays.scalars.html>
+"""Convenience accessors for Warp scalar, vector, and matrix dtypes."""
 
 import re
 import sys
@@ -9,18 +10,22 @@ import warp as wp
 
 
 def _floating() -> type:
+    """Return the default Warp floating dtype for the active JAX precision mode."""
     return wp.float64 if jax.config.read("jax_enable_x64") else wp.float32
 
 
 def vector(length: int) -> type:
+    """Build a Warp vector dtype using the default floating scalar type."""
     return wp.types.vector(length, _floating())
 
 
 def matrix(shape: tuple[int, int]) -> type:
+    """Build a Warp matrix dtype using the default floating scalar type."""
     return wp.types.matrix(shape, _floating())
 
 
 def __getattr__(name: str) -> type:
+    """Resolve dynamic shorthand names such as ``floating``, ``vec3``, or ``mat33``."""
     if name in {"float", "float_"}:
         warnings.warn(
             f"{__name__}.{name} is deprecated, use {__name__}.floating instead",

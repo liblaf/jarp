@@ -8,6 +8,8 @@ from jarp.tree._filters import AuxData, combine, partition
 
 
 class PyTreeProxy[T](wrapt.BaseObjectProxy):
+    """Wrap an arbitrary object and flatten the wrapped value as a PyTree."""
+
     __wrapped__: T
 
 

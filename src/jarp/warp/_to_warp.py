@@ -11,6 +11,12 @@ from warp._src.types import type_scalar_type
 
 @functools.singledispatch
 def to_warp(arr: Any, *_args, **_kwargs) -> wp.array:
+    """Convert a supported array object into a :class:`warp.array`.
+
+    The generic dispatcher currently supports NumPy arrays and JAX arrays. A
+    ``dtype`` hint may be a concrete Warp dtype or a tuple that describes a
+    vector or matrix dtype inferred from the trailing dimensions of ``arr``.
+    """
     raise TypeError(arr)
 
 
@@ -36,6 +42,7 @@ def _convert_dtype(dtype: Any, arr_shape: Sequence[int], arr_dtype: Any) -> Any:
 
 @to_warp.register(np.ndarray)
 def _to_warp_numpy(arr: np.ndarray, dtype: Any = None, **kwargs) -> wp.array:
+    """Convert a NumPy array into a Warp array."""
     dtype: Any = _convert_dtype(dtype, arr.shape, wp.dtype_from_numpy(arr.dtype))
     if dtype is not None:
         scalar_type: Any = type_scalar_type(dtype)
@@ -45,6 +52,7 @@ def _to_warp_numpy(arr: np.ndarray, dtype: Any = None, **kwargs) -> wp.array:
 
 @to_warp.register(jax.Array)
 def _to_warp_jax(arr: jax.Array, dtype: Any = None, **kwargs) -> wp.array:
+    """Convert a JAX array into a Warp array."""
     dtype: Any = _convert_dtype(dtype, arr.shape, wp.dtype_from_jax(arr.dtype))
     if dtype is not None:
         scalar_type: Any = type_scalar_type(dtype)

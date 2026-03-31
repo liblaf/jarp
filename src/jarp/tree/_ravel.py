@@ -16,6 +16,13 @@ type Vector = Shaped[Array, " N"]
 
 @frozen_static
 class Structure[T]:
+    """Record how to flatten and rebuild a PyTree's dynamic leaves.
+
+    Instances are returned by :func:`ravel` and capture the original tree
+    definition, the static leaves that were removed from the flat vector, and
+    the offsets needed to reconstruct each dynamic leaf.
+    """
+
     dtype: DTypeLike
     meta_leaves: tuple[Any, ...]
     offsets: tuple[int, ...]
@@ -24,9 +31,19 @@ class Structure[T]:
 
     @property
     def is_leaf(self) -> bool:
+        """Return whether the original tree was a single leaf."""
         return jtu.treedef_is_leaf(self.treedef)
 
     def ravel(self, tree: T | Array) -> Vector:
+        """Flatten a compatible tree or flatten an array in-place.
+
+        Args:
+            tree: A tree with the same structure used to build this
+                :class:`Structure`, or an already-flat array.
+
+        Returns:
+            A one-dimensional array containing the dynamic leaves.
+        """
         if isinstance(tree, Array):
             # do not flatten if already flat
             return jnp.ravel(tree)
@@ -37,6 +54,18 @@ class Structure[T]:
         return _ravel(data_leaves)
 
     def unravel(self, flat: T | Array, dtype: DTypeLike | None = None) -> T:
+        """Rebuild the original tree shape from a flat vector.
+
+        Args:
+            flat: One-dimensional data produced by :meth:`ravel`, or a tree that
+                already matches the recorded structure.
+            dtype: Optional dtype override applied to the flat array before it
+                is split and reshaped.
+
+        Returns:
+            A tree with the same structure and static metadata as the original
+            input to :func:`ravel`.
+        """
         if not isinstance(flat, Array):
             # do not unravel if already a pytree
             assert jax.tree.structure(flat) == self.treedef
@@ -50,6 +79,19 @@ class Structure[T]:
 
 
 def ravel[T](tree: T) -> tuple[Array, Structure[T]]:
+    """Flatten a PyTree's dynamic leaves into one vector.
+
+    Non-array leaves are treated as static metadata and preserved in the
+    returned :class:`Structure` instead of being concatenated into the flat
+    array.
+
+    Args:
+        tree: PyTree to flatten.
+
+    Returns:
+        A tuple of ``(flat, structure)`` where ``flat`` is a one-dimensional
+        JAX array and ``structure`` can rebuild compatible trees later.
+    """
     leaves, treedef = jax.tree.flatten(tree)
     dynamic_leaves, static_leaves = partition_leaves(leaves)
     flat: Array = _ravel(dynamic_leaves)

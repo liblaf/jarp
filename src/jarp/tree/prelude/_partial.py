@@ -10,11 +10,14 @@ from jarp.tree._filters import is_data
 
 
 class Partial[**P, T](wrapt.PartialCallableObjectProxy):
+    """Store a partially applied callable as a PyTree-aware proxy."""
+
     __wrapped__: Callable[..., T]
     _self_args: tuple[Any, ...]
     _self_kwargs: dict[str, Any]
 
     def __init__(self, func: Callable[..., T], /, *args: Any, **kwargs: Any) -> None:
+        """Create a proxy that records bound arguments for PyTree flattening."""
         super().__init__(func, *args, **kwargs)
         self._self_args = args
         self._self_kwargs = kwargs
@@ -25,6 +28,7 @@ class Partial[**P, T](wrapt.PartialCallableObjectProxy):
 
 
 def partial[T](func: Callable[..., T], /, *args: Any, **kwargs: Any) -> Partial[..., T]:
+    """Partially apply a callable and keep the result compatible with JAX trees."""
     return Partial(func, *args, **kwargs)
 
 

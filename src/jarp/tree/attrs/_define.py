@@ -14,6 +14,8 @@ from ._register import register_fieldz
 
 
 class PyTreeType(enum.StrEnum):
+    """Choose how a class should participate in JAX PyTree flattening."""
+
     DATA = enum.auto()
     NONE = enum.auto()
     STATIC = enum.auto()
@@ -65,7 +67,20 @@ def define[T: type](
 def define[T: type](
     cls: None = None, *, kw_only: bool = False, **kwargs: Unpack[DefineOptions]
 ) -> Callable[[T], T]: ...
-def define[T: type](maybe_cls: T | None = None, **kwargs) -> Any:
+def define[T: type](maybe_cls: T | None = None, **kwargs: Any) -> Any:
+    """Define an ``attrs`` class and optionally register it as a PyTree.
+
+    Args:
+        maybe_cls: Class being decorated. When omitted, return a configured
+            decorator.
+        **kwargs: Options forwarded to :func:`attrs.define`, plus ``pytree`` to
+            control JAX registration. ``pytree="data"`` registers fields with
+            ``fieldz`` semantics, ``"static"`` registers the whole instance as a
+            static value, and ``"none"`` leaves the class unregistered.
+
+    Returns:
+        The decorated class or a class decorator.
+    """
     if maybe_cls is None:
         return functools.partial(define, **kwargs)
     pytree: PyTreeType = PyTreeType(kwargs.pop("pytree", None))
@@ -98,7 +113,8 @@ def frozen[T: type](
 def frozen[T: type](
     cls: None = None, /, *, kw_only: bool = False, **kwargs: Unpack[DefineOptions]
 ) -> Callable[[T], T]: ...
-def frozen[T: type](maybe_cls: T | None = None, **kwargs) -> Any:
+def frozen[T: type](maybe_cls: T | None = None, **kwargs: Any) -> Any:
+    """Define a frozen ``attrs`` class and register it as a data PyTree."""
     _warnings_hide = True
     if maybe_cls is None:
         return functools.partial(frozen, **kwargs)
@@ -120,7 +136,8 @@ def frozen_static[T: type](
 def frozen_static[T: type](
     cls: None = None, /, *, kw_only: bool = False, **kwargs: Unpack[DefineOptions]
 ) -> Callable[[T], T]: ...
-def frozen_static[T: type](maybe_cls: T | None = None, **kwargs) -> Any:
+def frozen_static[T: type](maybe_cls: T | None = None, **kwargs: Any) -> Any:
+    """Define a frozen ``attrs`` class and register it as a static PyTree."""
     _warnings_hide = True
     if maybe_cls is None:
         return functools.partial(frozen_static, **kwargs)

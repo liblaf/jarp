@@ -36,6 +36,8 @@ class JaxCallableCallOptions(TypedDict, total=False):
 
 
 class FfiCallableProtocol(Protocol):
+    """Callable interface returned by :func:`jax_callable`."""
+
     def __call__(
         self, *args: Array, **kwargs: Unpack[JaxCallableCallOptions]
     ) -> Sequence[Array]: ...
@@ -43,6 +45,8 @@ class FfiCallableProtocol(Protocol):
 
 @tree.frozen_static
 class _FfiCallable(FfiCallableProtocol):
+    """Rebuild a generic Warp callable from the runtime JAX dtypes."""
+
     factory: _FfiCallableFactory
     options: JaxCallableOptions
 
@@ -85,6 +89,19 @@ def jax_callable(
     generic: bool = False,
     **kwargs: Unpack[JaxCallableOptions],
 ) -> Any:
+    """Wrap ``warp.jax_experimental.jax_callable`` with optional dtype dispatch.
+
+    Args:
+        func: Warp callable function or factory. When omitted, return a
+            decorator.
+        generic: When true, ``func`` is treated as a factory that receives Warp
+            scalar dtypes inferred from the runtime JAX arguments and returns a
+            concrete Warp callable implementation.
+        **kwargs: Options forwarded to Warp's JAX callable adapter.
+
+    Returns:
+        A callable compatible with JAX tracing, or a decorator producing one.
+    """
     if func is None:
         return functools.partial(jax_callable, generic=generic, **kwargs)
     if not generic:

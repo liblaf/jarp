@@ -32,6 +32,8 @@ class JaxKernelCallOptions(TypedDict, total=False):
 
 
 class FfiKernelProtocol(Protocol):
+    """Callable interface returned by :func:`jax_kernel`."""
+
     def __call__(
         self, *args: Array, **kwargs: Unpack[JaxKernelCallOptions]
     ) -> Sequence[Array]: ...
@@ -39,6 +41,8 @@ class FfiKernelProtocol(Protocol):
 
 @tree.frozen_static
 class _FfiKernel(FfiKernelProtocol):
+    """Rebuild a generic Warp kernel overload from runtime JAX dtypes."""
+
     kernel: wp.Kernel
     options: JaxKernelOptions
     arg_types_factory: Callable[..., ArgTypes]
@@ -76,6 +80,18 @@ def jax_kernel(
     arg_types_factory: Callable[[WarpScalarDType], ArgTypes] | None = None,
     **kwargs: Unpack[JaxKernelOptions],
 ) -> Any:
+    """Wrap ``warp.jax_experimental.jax_kernel`` with optional overload lookup.
+
+    Args:
+        kernel: Warp kernel to expose to JAX. When omitted, return a decorator.
+        arg_types_factory: Optional callback that maps runtime Warp scalar dtypes
+            to the overloaded kernel argument types expected by
+            :func:`warp.overload`.
+        **kwargs: Options forwarded to Warp's JAX kernel adapter.
+
+    Returns:
+        A callable compatible with JAX tracing, or a decorator producing one.
+    """
     if kernel is None:
         return functools.partial(
             jax_kernel, arg_types_factory=arg_types_factory, **kwargs
