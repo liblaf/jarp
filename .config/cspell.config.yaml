@@ -18,47 +18,48 @@ words:
   - arithmatex
   - asarray
   - cuda
-  - direnv
+  - dtype
   - fieldz
-  - funcs
-  - getattr
+  - grimp
   - hynek
-  - icosphere
   - inlinehilite
   - jarp
   - jaxtyping
   - kwonlyargs
   - liblaf
   - linearization
+  - linenums
+  - lucide
   - mkdocs
   - mkdocstrings
   - nans
   - nbytes
-  - numprocesses
   - numpy
+  - pipx
   - precond
-  - primals
   - pycache
   - pydantic
   - pydocstyle
+  - pygments
   - pylint
   - pymdownx
   - pypa
   - pypi
   - pyplot
-  - pyproject
-  - pyrightconfig
   - pytest
   - pytree
+  - pytrees
   - pyvista
+  - rumdl
   - sdist
   - shardings
-  - tombi
+  - taiki
   - toolz
   - trimesh
+  - twemoji
   - unflatten
   - unflattening
-  - uuidgen
   - venv
   - virtualenv
   - vmap
+  - zensical

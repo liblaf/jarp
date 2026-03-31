@@ -21,6 +21,6 @@
 
 [Changelog](https://github.com/liblaf/jarp/blob/main/CHANGELOG.md) · [Report Bug](https://github.com/liblaf/jarp/issues) · [Request Feature](https://github.com/liblaf/jarp/issues)
 
-![](https://cdn.jsdelivr.net/gh/andreasbm/readme/assets/lines/rainbow.png)
+![Rule](https://cdn.jsdelivr.net/gh/andreasbm/readme/assets/lines/rainbow.png)
 
 </div>

@@ -41,8 +41,7 @@ def main() -> None:
         "JAX JIT (with inputs)", bench(lambda: jax.block_until_ready(fun_jax(inputs)))
     )
     print_elapsed(
-        "JARP JIT (with inputs)",
-        bench(lambda: jax.block_until_ready(fun_jarp(inputs))),
+        "JARP JIT (with inputs)", bench(lambda: jax.block_until_ready(fun_jarp(inputs)))
     )
     print_elapsed(
         "Equinox JIT (with inputs)",

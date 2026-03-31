@@ -47,11 +47,7 @@ def jit[**P, T](
 ) -> Callable[[Callable[P, T]], Callable[P, T]]: ...
 @overload
 def jit[**P, T](
-    fun: Callable[P, T],
-    /,
-    *,
-    filter: Literal[True],
-    **kwargs: Unpack[FilterJitOptions],
+    fun: Callable[P, T], /, *, filter: Literal[True], **kwargs: Unpack[FilterJitOptions]
 ) -> Callable[P, T]: ...
 @overload
 def jit[**P, T](
