@@ -32,7 +32,7 @@ This benchmark measures the flatten and unflatten performance of custom PyTree n
 
 ## Test Environment
 
-```
+```text
 python==3.14.2
 jax==0.9.0
 jarp==0.1.0
