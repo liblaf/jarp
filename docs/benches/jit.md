@@ -29,7 +29,7 @@ This allows users to pass arbitrary PyTrees containing mixed data types to JIT-c
 
 ## Test Environment
 
-```
+```text
 python==3.14.2
 jax==0.9.0
 jarp==0.1.0
