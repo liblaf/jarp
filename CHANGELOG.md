@@ -7,6 +7,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog-config-spec/blob/master/versions/2.2.0/README.md),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.1.10](https://github.com/liblaf/jarp/releases/tag/v0.1.10) - 2026-04-06
+
+### 📝 Documentation
+
+- expand package docs and inline API docstrings - [f3a7377](https://github.com/liblaf/jarp/commit/f3a73770e9a96c2306e4e14b48eccfa2dd90b5f5) by [@liblaf](https://github.com/liblaf)
+
+### ❤️ Contributors
+
+- [@renovate[bot]](https://github.com/apps/renovate)
+- [@liblaf-copier[bot]](https://github.com/apps/liblaf-copier) made their first contribution in [#33](https://github.com/liblaf/jarp/pull/33)
+- [@liblaf](https://github.com/liblaf)
+
 ## [v0.1.9](https://github.com/liblaf/jarp/releases/tag/v0.1.9) - 2026-03-31
 
 ### 🛠 Builds
@@ -19,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ❤️ Contributors
 
+- [@liblaf-release-please[bot]](https://github.com/apps/liblaf-release-please) made their first contribution in [#30](https://github.com/liblaf/jarp/pull/30)
 - [@liblaf](https://github.com/liblaf)
 - [@renovate[bot]](https://github.com/apps/renovate)
 
