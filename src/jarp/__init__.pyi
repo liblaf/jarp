@@ -1,5 +1,5 @@
 from . import lax, tree, warp
-from ._jit import jit
+from ._jit import fallback_jit, filter_jit
 from ._version import __version__, __version_tuple__
 from .lax import while_loop
 from .tree import (
@@ -28,12 +28,13 @@ __all__ = [
     "array",
     "auto",
     "define",
+    "fallback_jit",
     "field",
+    "filter_jit",
     "frozen",
     "frozen_static",
     "jax_callable",
     "jax_kernel",
-    "jit",
     "lax",
     "partial",
     "ravel",

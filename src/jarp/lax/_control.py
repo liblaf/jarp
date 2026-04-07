@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Callable, Sequence
 from typing import Any, cast
 
@@ -6,13 +7,14 @@ from jaxtyping import Array, ArrayLike, ScalarLike
 
 type BooleanNumeric = ScalarLike
 
+logger: logging.Logger = logging.getLogger(__name__)
+
 
 def cond[*Ts, T](
     pred: ScalarLike,
     true_fun: Callable[[*Ts], T],
     false_fun: Callable[[*Ts], T],
     *operands: *Ts,
-    jit: bool = True,
 ) -> T:
     """Choose between two branches with optional eager execution.
 
@@ -28,8 +30,10 @@ def cond[*Ts, T](
     Returns:
         The value returned by the selected branch.
     """
-    if jit:
+    try:
         return jax.lax.cond(pred, true_fun, false_fun, *operands)
+    except (jax.errors.JAXTypeError, jax.errors.JAXIndexError):
+        logger.exception()
     if pred:
         return true_fun(*operands)
     return false_fun(*operands)
