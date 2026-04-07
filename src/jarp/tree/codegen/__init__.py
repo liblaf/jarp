@@ -1,4 +1,8 @@
-"""Code-generation helpers for custom PyTree registrations."""
+"""Code-generation helpers for high-performance PyTree registrations.
+
+These utilities build specialized flatten and unflatten callbacks for classes
+whose field layout is known ahead of time.
+"""
 
 from lazy_loader import attach_stub
 

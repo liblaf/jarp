@@ -21,13 +21,14 @@ type _FfiCallableFactory = Callable[..., _FfiCallableFunction]
 class JaxCallableOptions(TypedDict, total=False):
     num_outputs: int
     graph_mode: GraphMode
-    vmap_method: str | None
+    vmap_method: VmapMethod | None
     output_dims: dict[str, ShapeLike] | None  # Mapping won't work with Warp
     in_out_argnames: Iterable[str]
     stage_in_argnames: Iterable[str]
     stage_out_argnames: Iterable[str]
     graph_cache_max: int | None
     module_preload_mode: ModulePreloadMode
+    has_side_effect: bool
 
 
 class JaxCallableCallOptions(TypedDict, total=False):
@@ -36,7 +37,7 @@ class JaxCallableCallOptions(TypedDict, total=False):
 
 
 class FfiCallableProtocol(Protocol):
-    """Callable interface returned by :func:`jax_callable`."""
+    """Callable interface returned by [`jax_callable`][jarp.warp.jax_callable]."""
 
     def __call__(
         self, *args: Array, **kwargs: Unpack[JaxCallableCallOptions]
@@ -91,6 +92,11 @@ def jax_callable(
 ) -> Any:
     """Wrap ``warp.jax_experimental.jax_callable`` with optional dtype dispatch.
 
+    When ``generic=True``, ``func`` is treated as a factory keyed by the Warp
+    scalar dtypes inferred from the runtime JAX arguments. The factory output is
+    cached, so repeated calls with the same dtype signature reuse the same Warp
+    callable.
+
     Args:
         func: Warp callable function or factory. When omitted, return a
             decorator.
@@ -101,6 +107,7 @@ def jax_callable(
 
     Returns:
         A callable compatible with JAX tracing, or a decorator producing one.
+        The callable returns the output arrays produced by Warp's FFI wrapper.
     """
     if func is None:
         return functools.partial(jax_callable, generic=generic, **kwargs)

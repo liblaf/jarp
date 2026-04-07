@@ -17,6 +17,8 @@ type _KeyEntry = Any
 
 
 class PyTreeFunctions[T](NamedTuple):
+    """Container for the generated callbacks needed by ``register_pytree_node``."""
+
     flatten: Callable[[T], tuple[_Children, _AuxData]]
     unflatten: Callable[[_AuxData, _Children], T]
     flatten_with_keys: Callable[[T], tuple[_ChildrenWithKeys, _AuxData]]
@@ -31,6 +33,24 @@ def codegen_pytree_functions(
     filter_spec: Callable[[Any], bool] = is_data,
     bypass_setattr: bool | None = None,
 ) -> PyTreeFunctions:
+    """Generate flatten and unflatten callbacks for a class.
+
+    Args:
+        cls: Class whose instances should become PyTree nodes.
+        data_fields: Field names that are always emitted as dynamic children.
+        meta_fields: Field names that are always emitted as auxiliary metadata.
+        auto_fields: Field names filtered at runtime with ``filter_spec``.
+        filter_spec: Predicate used to split ``auto_fields`` into dynamic data
+            or metadata.
+        bypass_setattr: Whether generated unflattening code should use
+            [`object.__setattr__`][object.__setattr__] instead of normal
+            attribute assignment.
+
+    Returns:
+        A [`PyTreeFunctions`][jarp.tree.codegen._compile.PyTreeFunctions] tuple
+        containing ``flatten``, ``unflatten``, and ``flatten_with_keys``
+        callables.
+    """
     if bypass_setattr is None:
         bypass_setattr = cls.__setattr__ is not object.__setattr__
     flatten_def: ast.FunctionDef = codegen_flatten(
@@ -75,6 +95,22 @@ def register_generic(
     filter_spec: Callable[[Any], bool] = is_data,
     bypass_setattr: bool | None = None,
 ) -> None:
+    """Register a class as a PyTree using explicit field groups.
+
+    Use this lower-level helper when you want to control the flattening layout
+    directly instead of relying on [attrs][] metadata.
+
+    Args:
+        cls: Class to register.
+        data_fields: Field names that are always emitted as dynamic children.
+        meta_fields: Field names that are always emitted as auxiliary metadata.
+        auto_fields: Field names filtered at runtime with ``filter_spec``.
+        filter_spec: Predicate used to split ``auto_fields`` into dynamic data
+            or metadata.
+        bypass_setattr: Whether generated unflattening code should use
+            [`object.__setattr__`][object.__setattr__] instead of normal
+            attribute assignment.
+    """
     flatten: Callable
     unflatten: Callable
     flatten_with_keys: Callable

@@ -10,7 +10,12 @@ from jarp.tree._filters import is_data
 
 
 class Partial[**P, T](wrapt.PartialCallableObjectProxy):
-    """Store a partially applied callable as a PyTree-aware proxy."""
+    """Store a partially applied callable as a PyTree-aware proxy.
+
+    Bound arguments and keyword arguments flatten as PyTree children, while the
+    wrapped callable itself is partitioned between dynamic data and static
+    metadata when needed.
+    """
 
     __wrapped__: Callable[..., T]
     _self_args: tuple[Any, ...]

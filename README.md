@@ -26,27 +26,21 @@
 
 </div>
 
-`jarp` is a typed utility library for the glue code between JAX PyTrees,
-`attrs`, and NVIDIA Warp. It packages the small adapters that keep mixed
-array-and-metadata structures ergonomic in compiled code, tree transforms, and
-Warp interop.
+`jarp` is a small utility library for JAX code that mixes traceable arrays with
+ordinary Python metadata, plus a few helpers for crossing into NVIDIA Warp.
+It focuses on the points where a plain `jax.jit` or basic PyTree registration
+starts to feel too rigid:
 
-## ✨ Features
-
-- 🧠 **Filtered JIT for mixed PyTrees:** `jarp.jit(filter=True)` partitions
-  arrays from static Python metadata so functions can cross `jax.jit` without
-  hand-written static argument plumbing.
-- 🌳 **PyTree-friendly class decorators:** `jarp.define`, `jarp.frozen`, and
-  `jarp.frozen_static` wrap `attrs` and register classes with JAX using field
-  specifiers such as `array()`, `static()`, and `auto()`.
-- 📏 **Tree flattening with round-tripping structure:** `jarp.ravel` produces a
-  flat vector plus a reusable `Structure` object that can rebuild the original
-  PyTree, including static leaves.
-- ⚡ **Warp integration that matches JAX workflows:** `jarp.to_warp`,
-  `jarp.warp.jax_callable`, and `jarp.warp.jax_kernel` bridge NumPy or JAX
-  arrays into Warp and support dtype-driven generic wrappers.
-- 🐍 **Modern Python support and typed APIs:** the package targets Python 3.12
-  through 3.14 and ships inline type information.
+- `jarp.jit(filter=True)` partitions mixed PyTrees into dynamic array leaves and
+  static metadata automatically.
+- `jarp.define`, `jarp.frozen`, `jarp.array()`, `jarp.static()`, and
+  `jarp.auto()` make `attrs` classes flatten the way JAX code expects.
+- `jarp.ravel` turns the dynamic leaves of a tree into one flat vector and
+  returns a reusable `Structure` for round trips.
+- `jarp.to_warp`, `jarp.warp.jax_callable`, and `jarp.warp.jax_kernel` cover
+  the common JAX-to-Warp interop paths.
+- `jarp.lax` mirrors a small slice of `jax.lax` with optional eager fallbacks
+  for debugging or non-jitted execution.
 
 ## 📦 Installation
 
@@ -68,8 +62,9 @@ uv add 'jarp[cuda13]'
 
 ## 🚀 Quick Start
 
-This example shows the two pieces `jarp` is built around: filtered JIT for
-mixed PyTrees and `attrs`-style classes that flatten cleanly under JAX.
+This example shows the core workflow: define a mixed data-and-metadata PyTree
+once, then compile functions against it without manual `static_argnums`
+plumbing.
 
 ```python
 import jax.numpy as jnp
@@ -92,11 +87,11 @@ batch = Batch(values=jnp.array([1.0, 2.0, 3.0]), label="train")
 result = normalize(batch)
 ```
 
-The array payload stays traceable, while the string label is preserved as
-static metadata.
+The array payload stays traceable, while the string label remains static
+metadata.
 
-`jarp.ravel` handles the other common workflow: turn a PyTree into one vector
-and keep enough structure around to rebuild it later.
+`jarp.ravel` handles the other common workflow: flatten only the dynamic leaves
+into one vector and keep enough structure around to rebuild the tree later.
 
 ```python
 import jax.numpy as jnp
@@ -107,6 +102,23 @@ payload = {"a": jnp.zeros((3,)), "b": jnp.ones((4,)), "static": "foo"}
 flat, structure = jarp.ravel(payload)
 round_trip = structure.unravel(flat)
 ```
+
+When a JAX or NumPy pipeline needs to cross into Warp, `jarp.to_warp` can infer
+vector and matrix dtypes from trailing dimensions:
+
+```python
+from typing import Any
+
+import jax.numpy as jnp
+import jarp
+
+
+arr_wp = jarp.to_warp(jnp.zeros((5, 3), jnp.float32), (-1, Any))
+```
+
+For broader PyTree traversal helpers, see `jarp.PyTreeProxy`,
+`jarp.partial`, `jarp.tree.register_generic`, and the lower-level
+`jarp.tree.codegen` module.
 
 ## 🛠️ Local Development
 
@@ -127,8 +139,13 @@ To build the documentation site locally:
 uv run zensical build
 ```
 
-Benchmarks and API docs live under [`docs/`](docs/README.md), and the published
-site is available at [liblaf.github.io/jarp](https://liblaf.github.io/jarp/).
+## 📚 Documentation
+
+- [Documentation site](https://liblaf.github.io/jarp/)
+- [Getting started guide](docs/guides/getting-started.md)
+- [PyTree workflows](docs/guides/pytree-workflows.md)
+- [Warp interop guide](docs/guides/warp.md)
+- [API reference map](docs/reference/README.md)
 
 ## 🤝 Contributing
 

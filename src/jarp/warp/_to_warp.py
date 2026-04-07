@@ -10,12 +10,25 @@ from warp._src.types import type_scalar_type
 
 
 @functools.singledispatch
-def to_warp(arr: Any, *_args, **_kwargs) -> wp.array:
-    """Convert a supported array object into a :class:`warp.array`.
+def to_warp(arr: Any, *_args: Any, **_kwargs: Any) -> wp.array:
+    """Convert a supported array object into a [`warp.array`][warp.array].
 
-    The generic dispatcher currently supports NumPy arrays and JAX arrays. A
-    ``dtype`` hint may be a concrete Warp dtype or a tuple that describes a
+    The dispatcher supports existing Warp arrays, NumPy arrays, and JAX arrays.
+    A ``dtype`` hint may be a concrete Warp dtype or a tuple that describes a
     vector or matrix dtype inferred from the trailing dimensions of ``arr``.
+    Use ``(-1, Any)`` for vector inference and ``(-1, -1, Any)`` for matrix
+    inference when the element type should follow the source array.
+
+    Args:
+        arr: Array object to convert.
+        *_args: Reserved for singledispatch compatibility.
+        **_kwargs: Reserved for singledispatch compatibility.
+
+    Returns:
+        A Warp array view or converted array, depending on the source type.
+
+    Raises:
+        TypeError: If ``arr`` uses an unsupported type.
     """
     raise TypeError(arr)
 
@@ -38,6 +51,16 @@ def _convert_dtype(dtype: Any, arr_shape: Sequence[int], arr_dtype: Any) -> Any:
             return wp.types.matrix((rows, cols), dtype)
         case _:
             return dtype
+
+
+@to_warp.register(wp.array)
+def _to_warp_wp(arr: wp.array, dtype: Any = None, **kwargs) -> wp.array:
+    del kwargs
+    dtype: Any = _convert_dtype(dtype, arr.shape, arr.dtype)
+    if dtype is not None and wp.types.types_equal(arr.dtype, dtype):
+        return arr
+    msg: str = f"Cannot convert Warp array of dtype {arr.dtype} to {dtype}"
+    raise ValueError(msg)
 
 
 @to_warp.register(np.ndarray)

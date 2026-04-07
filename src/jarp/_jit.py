@@ -56,16 +56,17 @@ def jit[**P, T](
 def jit[**P, T](fun: Callable[P, T] | None = None, **kwargs: Any) -> Callable:
     """Compile a callable with JAX, optionally preserving static PyTree leaves.
 
-    When ``filter=False`` this is a thin wrapper around :func:`jax.jit`.
+    When ``filter=False`` this is a thin wrapper around [jax.jit][].
     When ``filter=True`` the function and its inputs are partitioned into
     dynamic array leaves and static metadata so mixed PyTrees can cross the JIT
     boundary without requiring manual ``static_argnums`` wiring.
 
     Args:
         fun: Callable to compile. When omitted, return a decorator.
-        **kwargs: Options forwarded to :func:`jax.jit`. With ``filter=True``,
-            only the subset in :class:`FilterJitOptions` is supported because
-            static argument handling is managed internally.
+        **kwargs: Options forwarded to [jax.jit][]. With
+            ``filter=True``, only the subset in
+            [`FilterJitOptions`][jarp._jit.FilterJitOptions] is supported
+            because static argument handling is managed internally.
 
     Returns:
         A compiled callable or decorator with the same public call signature as

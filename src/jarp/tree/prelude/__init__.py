@@ -1,4 +1,10 @@
-"""PyTree-aware wrappers for callables and object proxies."""
+"""PyTree-aware wrappers for callables, proxies, and support registrations.
+
+This subpackage contains helper wrappers such as
+[`Partial`][jarp.tree.Partial] and [`PyTreeProxy`][jarp.tree.PyTreeProxy], plus
+the one-time registrations used by filtered JIT for bound methods and Warp
+arrays.
+"""
 
 from lazy_loader import attach_stub
 

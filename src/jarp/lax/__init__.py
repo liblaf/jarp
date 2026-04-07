@@ -1,4 +1,9 @@
-"""Control-flow wrappers that mirror JAX APIs with small ergonomic additions."""
+"""Control-flow wrappers with optional eager fallbacks.
+
+Use [jarp.lax][] when you want code that usually delegates to
+`jax.lax` but can still run the same callback structure eagerly during
+debugging, tests, or non-jitted execution.
+"""
 
 from lazy_loader import attach_stub
 

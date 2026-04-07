@@ -1,4 +1,11 @@
-"""Helpers for defining, flattening, and transforming JAX PyTrees."""
+"""Helpers for defining, flattening, and transforming JAX PyTrees.
+
+Most users start with [`define`][jarp.tree.define],
+[`frozen`][jarp.tree.frozen], field specifiers such as
+[`array`][jarp.tree.array] and [`static`][jarp.tree.static], and
+[`ravel`][jarp.tree.ravel]. Lower-level partitioning, registration, and
+code-generation helpers remain available for custom integrations.
+"""
 
 from lazy_loader import attach_stub
 

@@ -1,3 +1,3 @@
-from ._while_loop import while_loop
+from ._control import cond, fori_loop, select, select_n, switch, while_loop
 
-__all__ = ["while_loop"]
+__all__ = ["cond", "fori_loop", "select", "select_n", "switch", "while_loop"]

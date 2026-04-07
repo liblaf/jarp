@@ -1,4 +1,3 @@
-# ref: <https://numpy.org/doc/stable/reference/arrays.scalars.html>
 """Convenience accessors for Warp scalar, vector, and matrix dtypes."""
 
 import re
@@ -7,6 +6,8 @@ import warnings
 
 import jax
 import warp as wp
+
+# ref: <https://numpy.org/doc/stable/reference/arrays.scalars.html>
 
 
 def _floating() -> type:
