@@ -1,8 +1,8 @@
-"""Control-flow wrappers with optional eager fallbacks.
+"""Control-flow wrappers with automatic Python fallbacks.
 
-Use [jarp.lax][] when you want code that usually delegates to
-`jax.lax` but can still run the same callback structure eagerly during
-debugging, tests, or non-jitted execution.
+Use [jarp.lax][] when you want to try the corresponding `jax.lax` primitive
+first, but still rerun the same callback structure eagerly if JAX raises one
+of the tracing or indexing errors that commonly appear with Python-only code.
 """
 
 from lazy_loader import attach_stub

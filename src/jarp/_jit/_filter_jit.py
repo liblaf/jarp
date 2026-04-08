@@ -74,6 +74,24 @@ def filter_jit(
 def filter_jit[F: Callable[..., Any]](
     fun: F | None = None, **kwargs: Unpack[FilterJitOptions]
 ) -> Callable[..., Any]:
+    """Wrap a callable with jarp's data-versus-metadata partitioning.
+
+    The wrapper partitions the callable and each invocation's arguments with
+    [`jarp.tree.partition`][jarp.tree.partition], rebuilds the original call
+    shape, and partitions the return value again before handing it back. This
+    keeps JAX arrays on the dynamic side of the partition while preserving
+    ordinary Python metadata such as strings, bound methods, or configuration
+    objects.
+
+    Args:
+        fun: Callable to wrap. When omitted, return a configured decorator.
+        **kwargs: Reserved compatibility options for a ``jax.jit``-like
+            surface. The current implementation accepts these names but does
+            not use them directly.
+
+    Returns:
+        The wrapped callable, or a decorator that produces one.
+    """
     if fun is None:
         return functools.partial(filter_jit, **kwargs)
     fun_data, fun_meta = tree.partition(fun)

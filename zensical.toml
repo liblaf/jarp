@@ -4,13 +4,14 @@
 # Basics
 site_name = "Jarp"
 site_url = "__SITE_URL__"
-site_description = "Python utilities for JAX and Warp with filtered jit, pytree helpers, and array-to-Warp conversion."
+site_description = "PyTree helpers and Warp adapters for JAX code, with mixed data/metadata partitioning and array-to-Warp conversion."
 site_author = "liblaf"
 # Navigation
 nav = [
   { "Home" = "README.md" },
   { "Guides" = [
     { "Getting Started" = "guides/getting-started.md" },
+    { "Call Wrappers" = "guides/call-wrappers.md" },
     { "PyTree Workflows" = "guides/pytree-workflows.md" },
     { "Warp Interop" = "guides/warp.md" },
   ] },
@@ -24,6 +25,7 @@ nav = [
         "reference/jarp/tree/codegen/README.md",
         "reference/jarp/tree/prelude/README.md"
       ] },
+      "reference/jarp/utils/README.md",
       { "<code class=\"doc-symbol doc-symbol-toc doc-symbol-module\"></code> jarp.warp" = [
         "reference/jarp/warp/README.md",
         "reference/jarp/warp/types.md"
@@ -31,7 +33,7 @@ nav = [
     ] }
   ] },
   { "Benchmarks" = [
-    { "Filtered JIT" = "benches/jit.md" },
+    { "Filtered Wrappers" = "benches/jit.md" },
     { "PyTree Registration" = "benches/flatten.md" },
   ] },
 ]

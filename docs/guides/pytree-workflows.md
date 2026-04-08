@@ -27,7 +27,8 @@ leaves_with_extra, _ = jtu.tree_flatten(obj)
 
 `data` always flattens as a JAX child. `label` always stays static. `extra`
 follows the runtime value: a string stays static, while an array becomes a
-dynamic child.
+dynamic child. The runtime check is the same one exposed by
+[`is_data`][jarp.tree.is_data].
 
 ## Flatten A Tree Once And Reuse Its Structure
 
@@ -44,10 +45,10 @@ flat_again = structure.ravel(same_shape)
 round_trip = structure.unravel(flat)
 ```
 
-Use `ravel` when an optimizer, solver, or serialization step wants one vector
-without losing the tree layout or static leaves. The returned
-[`Structure`][jarp.tree.Structure] can flatten another compatible tree later or
-rebuild the original layout from a flat vector.
+Use [`ravel`][jarp.tree.ravel] when an optimizer, solver, or serialization
+step wants one vector without losing the tree layout or static leaves. The
+returned [`Structure`][jarp.tree.Structure] can flatten another compatible tree
+later or rebuild the original layout from a flat vector.
 
 ## Wrap Foreign Objects As PyTrees
 
@@ -62,21 +63,26 @@ leaves, treedef = jax.tree.flatten(proxy)
 restored = jax.tree.unflatten(treedef, leaves)
 ```
 
-`PyTreeProxy` keeps the wrapper transparent while JAX traverses the wrapped
-value. [`jarp.partial`][jarp.tree.partial] provides the same idea for partially
-applied callables whose bound arguments should remain visible to tree
-traversals.
+[`PyTreeProxy`][jarp.tree.PyTreeProxy] keeps the wrapper transparent while JAX
+traverses the wrapped value. [`partial`][jarp.tree.partial] provides the same
+idea for partially applied callables whose bound arguments should remain
+visible to tree traversals.
 
-`jarp.register_pytree_prelude()` performs the built-in one-time registrations
-used by filtered JIT, including bound methods and `warp.array`. Most users only
-need it when they want those registrations before using the higher-level
-helpers that already call it.
+[`register_pytree_prelude`][jarp.tree.register_pytree_prelude] performs the
+built-in one-time registrations used by the higher-level wrappers, including
+bound methods and `warp.array`. Most users only need it when they want those
+registrations early.
 
-## Register Non-`attrs` Classes
+## Register Classes Without `jarp.define`
 
-Use `jarp.tree.register_generic` when a class does not come from `attrs` or
-when you want to spell out which fields are always data, always metadata, or
-filtered at runtime.
+Use [`register_fieldz`][jarp.tree.register_fieldz] when an `attrs` class
+already carries the right field metadata. Use
+[`register_generic`][jarp.tree.register_generic] when a class does not come
+from `attrs` or when you want to spell out which fields are always data,
+always metadata, or filtered at runtime.
+
+`register_generic` builds specialized flatten and unflatten callbacks, and it
+can bypass custom `__setattr__` implementations when needed during unflatten.
 
 See [the API reference for `jarp.tree`](../reference/jarp/tree/README.md),
 [`jarp.tree.prelude`](../reference/jarp/tree/prelude/README.md), and

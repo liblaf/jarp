@@ -2,7 +2,7 @@
 
 `jarp` is for PyTrees that contain both traceable arrays and ordinary Python
 metadata. The common pattern is to describe that split once with field
-specifiers, then let `jarp` carry it through JAX transforms.
+specifiers, then reuse it everywhere else.
 
 ## Install
 
@@ -30,7 +30,7 @@ class Batch:
     label: str = jarp.static()
 
 
-@jarp.jit(filter=True)
+@jarp.filter_jit
 def normalize(batch: Batch) -> Batch:
     centered = batch.values - jnp.mean(batch.values)
     return Batch(values=centered, label=batch.label)
@@ -40,14 +40,14 @@ batch = Batch(values=jnp.array([1.0, 2.0, 3.0]), label="train")
 result = normalize(batch)
 ```
 
-`array()` marks values that should stay dynamic under JAX transforms.
-`static()` marks metadata that should stay out of tracing. `auto()` is the
-middle ground: it decides at flatten time whether the current value behaves
-like data or metadata.
+`array()` marks values that should stay on the dynamic side of the partition.
+`static()` marks metadata that should stay out of the dynamic leaves.
+`auto()` is the middle ground: it decides at flatten time whether the current
+value behaves like data or metadata.
 
-`jarp.jit(filter=True)` uses the same split for ordinary call arguments, so a
-function can accept strings, callables, or other metadata inside the same tree
-as JAX arrays without manually wiring `static_argnums`.
+[`filter_jit`][jarp.filter_jit] uses the same split for ordinary call
+arguments, so a function can accept strings, callables, or other metadata
+inside the same tree as JAX arrays without manual tree surgery.
 
 ## Flatten Mixed Trees Into One Vector
 
@@ -64,30 +64,35 @@ round_trip = structure.unravel(flat)
 `flat` contains only the dynamic leaves. `structure` keeps the tree definition,
 static leaves, and reshape offsets needed to rebuild compatible values later.
 
-If you already have a compatible tree, `structure.ravel(tree)` and
-`structure.unravel(tree)` treat it as an identity round trip after validating
-the recorded structure.
+If you already have a compatible tree, [`Structure.ravel`][jarp.tree.Structure.ravel]
+can flatten it again and [`Structure.unravel`][jarp.tree.Structure.unravel]
+will accept an already-matching tree unchanged.
 
-## Optional Eager Control Flow
+## Retry Selected Control-Flow Errors Eagerly
 
-`jarp.lax` mirrors a small slice of `jax.lax` and adds a `jit=` switch for the
-branching and loop wrappers. That lets the same callback structure run eagerly
-in Python during debugging:
+[`jarp.lax`][jarp.lax] tries `jax.lax` first and reruns the same callbacks in
+plain Python when JAX raises the tracing or indexing errors covered by
+[`suppress_jax_errors`][jarp.utils.suppress_jax_errors].
 
 ```python
 import jarp
 
 
 value = jarp.lax.while_loop(
-    lambda x: x < 3,
-    lambda x: x + 1,
-    0,
-    jit=False,
+    lambda state: state[0] < 3,
+    lambda state: (state[0] + 1, state[1] + [10, 20, 30][state[0]]),
+    (0, 0),
 )
 ```
 
+For the control-flow helpers and the cached Python fallback in
+[`fallback_jit`][jarp.fallback_jit], continue with
+[Call wrappers](call-wrappers.md).
+
 ## Next Steps
 
+- Read [Call wrappers](call-wrappers.md) for `filter_jit`,
+  `fallback_jit`, and `jarp.lax`.
 - Read [PyTree workflows](pytree-workflows.md) for `auto`, `PyTreeProxy`, and
   custom registration helpers.
 - Read [Warp interop](warp.md) for `to_warp`, `jax_callable`, and

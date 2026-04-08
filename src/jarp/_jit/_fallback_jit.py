@@ -59,6 +59,26 @@ def fallback_jit(
 def fallback_jit[**P, T](
     fun: Callable[P, T] | None = None, **kwargs: FilterJitOptions
 ) -> Callable:
+    """Wrap a callable and cache Python fallbacks for failing metadata shapes.
+
+    The wrapper first uses the same partitioned call path as
+    [`filter_jit`][jarp.filter_jit]. If that path raises
+    [`jax.errors.JAXTypeError`][jax.errors.JAXTypeError] or
+    [`jax.errors.JAXIndexError`][jax.errors.JAXIndexError], the exception is
+    logged, the current static-metadata signature is marked as unsupported,
+    and the original callable is invoked directly in Python. Later calls with
+    the same static metadata skip the partitioned path and reuse the Python
+    fallback immediately.
+
+    Args:
+        fun: Callable to wrap. When omitted, return a configured decorator.
+        **kwargs: Reserved compatibility options for a ``jax.jit``-like
+            surface. The current implementation accepts these names but does
+            not use them directly.
+
+    Returns:
+        The wrapped callable, or a decorator that produces one.
+    """
     if fun is None:
         return functools.partial(fallback_jit, **kwargs)
     fun_data, fun_meta = tree.partition(fun)
