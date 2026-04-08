@@ -1,21 +1,20 @@
-import jax
-
-import jarp.lax._control as control
+from jarp import lax
 
 
-def test_fori_loop_falls_back_to_python_when_jax_errors(monkeypatch) -> None:
-    def raise_index_error(*args, **kwargs):
-        del args, kwargs
-        raise jax.errors.JAXIndexError("boom")
+def test_fori_loop_falls_back_for_python_only_bodies() -> None:
+    def body(i: int, total: int) -> int:
+        return total + [10, 20, 30][i]
 
-    monkeypatch.setattr(control.jax.lax, "fori_loop", raise_index_error)
-    assert control.fori_loop(0, 4, lambda i, x: x + i, 0) == 6
+    assert lax.fori_loop(0, 3, body, 0, unroll=2) == 60
 
 
-def test_while_loop_falls_back_to_python_when_jax_errors(monkeypatch) -> None:
-    def raise_type_error(*args, **kwargs):
-        del args, kwargs
-        raise jax.errors.JAXTypeError("boom")
+def test_while_loop_falls_back_for_python_only_bodies() -> None:
+    def cond_fun(state: tuple[int, int]) -> bool:
+        i, _ = state
+        return i < 3
 
-    monkeypatch.setattr(control.jax.lax, "while_loop", raise_type_error)
-    assert control.while_loop(lambda x: x < 4, lambda x: x + 1, 1) == 4
+    def body_fun(state: tuple[int, int]) -> tuple[int, int]:
+        i, total = state
+        return i + 1, total + [10, 20, 30][i]
+
+    assert lax.while_loop(cond_fun, body_fun, (0, 0)) == (3, 60)

@@ -5,13 +5,14 @@ from collections.abc import Callable, Sequence
 from typing import TYPE_CHECKING, Any, cast
 
 import jax
-import wrapt
 from jaxtyping import ArrayLike, ScalarLike
 
 from jarp import utils
 
 if TYPE_CHECKING:
     from _typeshed import IdentityFunction
+
+
 type BooleanNumeric = ScalarLike
 
 
@@ -74,6 +75,7 @@ def fori_loop[T](
     Returns:
         The final loop value.
     """
+    del kwargs
     val: T = init_val
     for i in range(lower, upper):
         val: T = body_fun(i, val)

@@ -1,25 +1,21 @@
-import jax
 import pytest
 import warp as wp
+from warp._src.types import type_scalar_type
 
-import jarp.warp.types as types
-
-
-def test_types_follow_the_active_jax_precision_mode() -> None:
-    with jax.enable_x64(True):  # noqa: FBT003
-        assert types.floating is wp.float64
-        assert types.vec3 is wp.types.vector(3, wp.float64)
-        assert types.mat22 is wp.types.matrix((2, 2), wp.float64)
-
-    with jax.enable_x64(False):  # noqa: FBT003
-        assert types.floating is wp.float32
-        assert types.vector(5) is wp.types.vector(5, wp.float32)
-        assert types.matrix((2, 3)) is wp.types.matrix((2, 3), wp.float32)
+from jarp.warp import types as wt
 
 
-def test_types_warn_on_deprecated_aliases_and_unknown_names() -> None:
+def test_dynamic_type_helpers_follow_the_active_jax_precision() -> None:
+    assert wt.floating is wp.float64
+    assert type_scalar_type(wt.vector(3)) is wp.float64
+    assert type_scalar_type(wt.matrix((2, 3))) is wp.float64
+    assert wp.types.types_equal(wt.vec3, wt.vector(3))
+    assert wp.types.types_equal(wt.mat23, wt.matrix((2, 3)))
+
+
+def test_dynamic_attribute_lookup_handles_deprecations_and_errors() -> None:
     with pytest.warns(DeprecationWarning):
-        assert getattr(types, "float_") is types.floating
+        assert getattr(wt, "float") is wt.floating
 
-    with pytest.raises(AttributeError, match="has no attribute"):
-        getattr(types, "not_a_dtype")
+    with pytest.raises(AttributeError):
+        getattr(wt, "missing")

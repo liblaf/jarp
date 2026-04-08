@@ -1,74 +1,62 @@
 import jax
 import jax.numpy as jnp
-import numpy as np
 import pytest
 
-import jarp
+from jarp import fallback_jit
 
 
-class FlakyInner:
-    def __init__(self, fun_meta) -> None:
-        self.fun_meta = fun_meta
-        self.calls = 0
+def test_fallback_jit_records_cache_entries_by_static_metadata() -> None:
+    @fallback_jit
+    def add(x, offset=0):
+        return x + offset
 
-    def __call__(self, *args, **kwargs):
-        del args, kwargs
-        self.calls += 1
-        raise jax.errors.JAXTypeError("boom")
-
-
-def test_fallback_jit_supports_deferred_decoration_and_successful_calls() -> None:
-    @jarp.fallback_jit()
-    def add_one(x):
-        return x + 1
-
-    np.testing.assert_array_equal(add_one(jnp.array([1])), jnp.array([2]))
-    assert list(add_one.jit_able_cache.values()) == [True]
-
-
-def test_fallback_jit_reuses_python_path_after_cached_error(monkeypatch) -> None:
-    @jarp.fallback_jit
-    def add(x, mode):
-        return x + (1 if mode == "one" else 2)
-
-    inner = FlakyInner(add.inner.fun_meta)
-    monkeypatch.setattr(add, "inner", inner)
-
-    np.testing.assert_array_equal(add(jnp.array([1]), "one"), jnp.array([2]))
-    np.testing.assert_array_equal(add(jnp.array([1]), "one"), jnp.array([2]))
-    assert inner.calls == 1
-
-    add.reset_cache_entry(jnp.array([1]), "one")
-    np.testing.assert_array_equal(add(jnp.array([1]), "one"), jnp.array([2]))
-    assert inner.calls == 2
-
-
-def test_fallback_jit_caches_results_by_metadata(monkeypatch) -> None:
-    @jarp.fallback_jit
-    def add(x, mode):
-        return x + (1 if mode == "one" else 2)
-
-    inner = FlakyInner(add.inner.fun_meta)
-    monkeypatch.setattr(add, "inner", inner)
-
-    add(jnp.array([1]), "one")
-    add(jnp.array([1]), "two")
+    assert add(jnp.array([1, 2]), offset=1).tolist() == [2, 3]
+    assert add(jnp.array([1, 2]), offset=2).tolist() == [3, 4]
     assert len(add.jit_able_cache) == 2
+    assert set(add.jit_able_cache.values()) == {True}
 
 
-def test_fallback_jit_does_not_swallow_non_jax_errors(monkeypatch) -> None:
-    @jarp.fallback_jit
-    def passthrough(x):
+def test_fallback_jit_reuses_the_python_path_after_cached_jax_errors() -> None:
+    inner_calls = {"count": 0}
+
+    @fallback_jit
+    def pack(x, label):
+        return {"x": x + 1, "label": label}
+
+    class RaisingInner:
+        def __init__(self, fun_meta) -> None:
+            self.fun_meta = fun_meta
+
+        def __call__(self, *args, **kwargs):
+            del args, kwargs
+            inner_calls["count"] += 1
+            raise jax.errors.JAXTypeError("bad")
+
+    pack.inner = RaisingInner(pack.inner.fun_meta)
+
+    assert pack(jnp.array([1, 2]), label="tag")["x"].tolist() == [2, 3]
+    assert pack(jnp.array([5, 6]), label="tag")["x"].tolist() == [6, 7]
+    assert inner_calls["count"] == 1
+    assert list(pack.jit_able_cache.values()) == [False]
+
+    pack.reset_cache_entry(jnp.array([0]), label="tag")
+    assert pack.jit_able_cache == {}
+
+    assert pack(jnp.array([7, 8]), label="tag")["x"].tolist() == [8, 9]
+    assert inner_calls["count"] == 2
+
+
+def test_fallback_jit_does_not_swallow_non_jax_errors() -> None:
+    @fallback_jit
+    def identity(x):
         return x
 
-    class BrokenInner:
-        fun_meta = passthrough.inner.fun_meta
-
+    class RaisingInner:
         def __call__(self, *args, **kwargs):
             del args, kwargs
             raise RuntimeError("boom")
 
-    monkeypatch.setattr(passthrough, "inner", BrokenInner())
+    identity.inner = RaisingInner()
 
     with pytest.raises(RuntimeError, match="boom"):
-        passthrough(jnp.array([1]))
+        identity(jnp.array([1]))

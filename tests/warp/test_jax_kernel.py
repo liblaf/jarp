@@ -2,68 +2,57 @@ import jax.numpy as jnp
 import warp as wp
 
 import jarp.warp._jax_kernel as kernel_mod
+from jarp.warp import jax_kernel
 
 
-def test_jax_kernel_delegates_to_warp(monkeypatch) -> None:
-    calls = []
+def test_jax_kernel_delegates_for_concrete_kernels(monkeypatch) -> None:
+    seen = {}
 
-    def fake_jax_kernel(kernel, **options):
-        calls.append((kernel, options))
-        return lambda *args, **kwargs: (kernel, options, args, kwargs)
+    def fake_jax_kernel(kernel, **kwargs):
+        seen["kernel"] = kernel
+        seen["kwargs"] = kwargs
+        return lambda *args, **call_kwargs: (kernel.__name__, kwargs, call_kwargs)
 
     monkeypatch.setattr(kernel_mod.warp.jax_experimental, "jax_kernel", fake_jax_kernel)
 
-    def kernel(x, y):
-        return x, y
+    def kernel(x):
+        del x
+        return None
 
-    wrapped = kernel_mod.jax_kernel(kernel, num_outputs=1)
-    result = wrapped(jnp.ones((2,), jnp.float32), output_dims=2)
-
-    assert result[0] is kernel
-    assert calls == [(kernel, {"num_outputs": 1})]
-
-
-def test_jax_kernel_supports_decorator_usage(monkeypatch) -> None:
-    monkeypatch.setattr(
-        kernel_mod.warp.jax_experimental,
-        "jax_kernel",
-        lambda kernel, **options: (kernel, options),
-    )
-
-    def kernel(x, y):
-        return x, y
-
-    assert kernel_mod.jax_kernel(num_outputs=1)(kernel) == (kernel, {"num_outputs": 1})
+    wrapped = jax_kernel(kernel, launch_dims=4)
+    result = wrapped(jnp.array([1]), output_dims=1)
+    assert seen["kernel"] is kernel
+    assert seen["kwargs"] == {"launch_dims": 4}
+    assert result == ("kernel", {"launch_dims": 4}, {"output_dims": 1})
 
 
-def test_generic_jax_kernel_builds_overloads_from_runtime_dtype(monkeypatch) -> None:
-    warp_calls = []
+def test_jax_kernel_resolves_overloads_from_runtime_dtypes(monkeypatch) -> None:
     overload_calls = []
-
-    def fake_jax_kernel(kernel, **options):
-        warp_calls.append((kernel, options))
-        return lambda *args, **kwargs: (kernel, kwargs)
 
     def fake_overload(kernel, arg_types):
         overload_calls.append((kernel, arg_types))
         return ("overloaded", kernel, arg_types)
 
-    monkeypatch.setattr(kernel_mod.warp.jax_experimental, "jax_kernel", fake_jax_kernel)
+    def fake_jax_kernel(kernel, **kwargs):
+        return lambda *args, **call_kwargs: (kernel, kwargs, call_kwargs)
+
     monkeypatch.setattr(kernel_mod.wp, "overload", fake_overload)
+    monkeypatch.setattr(kernel_mod.warp.jax_experimental, "jax_kernel", fake_jax_kernel)
 
-    def kernel(x, y):
-        return x, y
+    def kernel(x):
+        del x
+        return None
 
-    wrapped = kernel_mod.jax_kernel(
+    wrapped = jax_kernel(
         kernel,
-        arg_types_factory=lambda dtype: {"x": wp.array1d[dtype]},
-        num_outputs=1,
+        arg_types_factory=lambda dtype: {"x": dtype},
+        enable_backward=True,
     )
-    wrapped(jnp.ones((2,), jnp.float32), output_dims=3)
-    wrapped(jnp.ones((2,), jnp.float64), output_dims=4)
-
-    assert overload_calls == [
-        (kernel, {"x": wp.array1d[wp.float32]}),
-        (kernel, {"x": wp.array1d[wp.float64]}),
-    ]
-    assert len(warp_calls) == 2
+    overloaded_kernel, kwargs, call_kwargs = wrapped(
+        jnp.array([1], dtype=jnp.int32),
+        launch_dims=2,
+    )
+    assert overloaded_kernel[0] == "overloaded"
+    assert overload_calls == [(kernel, {"x": wp.int32})]
+    assert kwargs == {"enable_backward": True}
+    assert call_kwargs == {"launch_dims": 2}

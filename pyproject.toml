@@ -53,7 +53,6 @@ cuda13 = ["jax[cuda13]>=0.9"]
 [dependency-groups]
 dev = [
     "equinox>=0.13",
-    "liblaf-grapes>=9.3.5",
 ]
 build = ["check-wheel-contents>=0.6", "hatch>=1", "twine>=6"]
 docs = [
