@@ -32,11 +32,7 @@ class FallbackOuter[**P, T](Outer[P, T]):
                 inputs_data, self.fun_data, inputs_meta
             )
         except (jax.errors.JAXTypeError, jax.errors.JAXIndexError):
-            logger.exception(
-                "JIT compilation failed for inputs with metadata %s; "
-                "falling back to eager execution for these inputs",
-                inputs_meta,
-            )
+            logger.exception("", stacklevel=2)
         else:
             self.jit_able_cache[inputs_meta] = True
             return tree.combine(output_data, output_meta)

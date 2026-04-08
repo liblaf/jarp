@@ -5,6 +5,8 @@ from typing import Any, cast
 import jax
 from jaxtyping import Array, ArrayLike, ScalarLike
 
+from jarp import utils
+
 type BooleanNumeric = ScalarLike
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -19,7 +21,7 @@ def cond[*Ts, T](
     """Choose between two branches with optional eager execution.
 
     Args:
-        pred: Scalar predicate. When ``jit=False``, Python truthiness decides
+        pred: Scalar predicate. When `jit=False`, Python truthiness decides
             which branch runs.
         true_fun: Branch evaluated when ``pred`` is true.
         false_fun: Branch evaluated when ``pred`` is false.
@@ -30,23 +32,15 @@ def cond[*Ts, T](
     Returns:
         The value returned by the selected branch.
     """
-    try:
+    with utils.suppress_jax_errors():
         return jax.lax.cond(pred, true_fun, false_fun, *operands)
-    except (jax.errors.JAXTypeError, jax.errors.JAXIndexError):
-        logger.exception()
     if pred:
         return true_fun(*operands)
     return false_fun(*operands)
 
 
 def fori_loop[T](
-    lower: int,
-    upper: int,
-    body_fun: Callable[[int, T], T],
-    init_val: T,
-    *,
-    jit: bool = True,
-    **kwargs: Any,
+    lower: int, upper: int, body_fun: Callable[[int, T], T], init_val: T, **kwargs: Any
 ) -> T:
     """Run a counted loop with either JAX or Python control flow.
 
@@ -64,7 +58,7 @@ def fori_loop[T](
     Returns:
         The final loop value.
     """
-    if jit:
+    with utils.suppress_jax_errors():
         return jax.lax.fori_loop(lower, upper, body_fun, init_val, **kwargs)
     val: T = init_val
     for i in range(lower, upper):
@@ -72,47 +66,8 @@ def fori_loop[T](
     return val
 
 
-def select(
-    pred: ArrayLike, on_true: ArrayLike, on_false: ArrayLike, *, jit: bool = True
-) -> Array:
-    """Select values elementwise using [`jax.lax.select`][jax.lax.select].
-
-    Args:
-        pred: Boolean predicate array.
-        on_true: Values used where ``pred`` is true.
-        on_false: Values used where ``pred`` is false.
-        jit: Accepted for API consistency with the other wrappers. This
-            function always dispatches to [`jax.lax.select`][jax.lax.select].
-
-    Returns:
-        The elementwise selection result.
-    """
-    del jit
-    return jax.lax.select(pred, on_true, on_false)
-
-
-def select_n(which: ArrayLike, *cases: ArrayLike, jit: bool = True) -> Array:
-    """Select one array from ``cases`` using [`jax.lax.select_n`][jax.lax.select_n].
-
-    Args:
-        which: Integer selector array.
-        *cases: Candidate arrays to choose from.
-        jit: Accepted for API consistency with the other wrappers. This
-            function always dispatches to
-            [`jax.lax.select_n`][jax.lax.select_n].
-
-    Returns:
-        The array chosen by ``which``.
-    """
-    del jit
-    return jax.lax.select_n(which, *cases)
-
-
 def switch[*Ts, T](
-    index: ArrayLike,
-    branches: Sequence[Callable[[*Ts], T]],
-    *operands: *Ts,
-    jit: bool = True,
+    index: ArrayLike, branches: Sequence[Callable[[*Ts], T]], *operands: *Ts
 ) -> T:
     """Choose one branch by index with optional eager execution.
 
@@ -127,18 +82,14 @@ def switch[*Ts, T](
     Returns:
         The value returned by the selected branch.
     """
-    if jit:
+    with utils.suppress_jax_errors():
         return jax.lax.switch(index, branches, *operands)
     index: int = min(max(0, cast("int", index)), len(branches) - 1)
     return branches[index](*operands)
 
 
 def while_loop[T](
-    cond_fun: Callable[[T], BooleanNumeric],
-    body_fun: Callable[[T], T],
-    init_val: T,
-    *,
-    jit: bool = True,
+    cond_fun: Callable[[T], BooleanNumeric], body_fun: Callable[[T], T], init_val: T
 ) -> T:
     """Run a loop with either ``jax.lax.while_loop`` or Python control flow.
 
@@ -153,7 +104,7 @@ def while_loop[T](
     Returns:
         The final loop state.
     """
-    if jit:
+    with utils.suppress_jax_errors():
         return jax.lax.while_loop(cond_fun, body_fun, init_val)
     val: T = init_val
     while cond_fun(val):

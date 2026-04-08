@@ -103,8 +103,10 @@ enable_inventory = true
 
 [project.plugins.mkdocstrings.handlers.python]
 inventories = [
+  "https://docs.jax.dev/en/latest/objects.inv",
   "https://docs.python.org/3/objects.inv",
-  "https://nvidia.github.io/warp/objects.inv"
+  "https://nvidia.github.io/warp/objects.inv",
+  "https://www.attrs.org/en/stable/objects.inv"
 ]
 
 [project.plugins.mkdocstrings.handlers.python.options]
