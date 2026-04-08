@@ -14,8 +14,8 @@ def test_dynamic_type_helpers_follow_the_active_jax_precision() -> None:
 
 
 def test_dynamic_attribute_lookup_handles_deprecations_and_errors() -> None:
-    with pytest.warns(DeprecationWarning):
-        assert getattr(wt, "float") is wt.floating
+    with pytest.warns(DeprecationWarning, match="deprecated"):
+        assert wt.float is wt.floating
 
     with pytest.raises(AttributeError):
-        getattr(wt, "missing")
+        _ = wt.missing

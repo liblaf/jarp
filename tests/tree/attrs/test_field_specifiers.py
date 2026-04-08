@@ -19,9 +19,10 @@ def test_field_specifier_metadata_matches_tree_roles() -> None:
 
 
 def test_array_defaults_are_normalized_and_field_types_coerce_inputs() -> None:
+    meta_flag = True
     assert isinstance(Example().data, jax.Array)
     assert Example().data.tolist() == [1, 2]
     assert tree.FieldType("auto") is tree.FieldType.AUTO
-    assert tree.FieldType(True) is tree.FieldType.META
-    assert bool(tree.FieldType.META) is True
-    assert bool(tree.FieldType.DATA) is False
+    assert tree.FieldType(meta_flag) is tree.FieldType.META
+    assert bool(tree.FieldType.META)
+    assert not bool(tree.FieldType.DATA)

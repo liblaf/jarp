@@ -1,24 +1,28 @@
+from typing import Any
+
 import jax
 import jax.numpy as jnp
+from jax import Array
 
 from jarp import tree
 
 
 class Plain:
-    def __init__(self, data, meta, auto):
+    def __init__(self, data: Array, meta: str, auto: Any) -> None:
         self.data = data
         self.meta = meta
         self.auto = auto
 
 
 class Frozenish:
-    def __init__(self, data, meta):
+    def __init__(self, data: Array, meta: str) -> None:
         object.__setattr__(self, "data", data)
         object.__setattr__(self, "meta", meta)
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: Any) -> None:
         del name, value
-        raise RuntimeError("blocked")
+        msg = "blocked"
+        raise RuntimeError(msg)
 
 
 tree.register_generic(Frozenish, data_fields=("data",), meta_fields=("meta",))

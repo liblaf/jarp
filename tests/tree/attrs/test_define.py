@@ -38,6 +38,8 @@ def test_define_warns_for_non_frozen_static_classes() -> None:
             name: str
 
     leaves, _ = jax.tree.flatten(Config("x"))
+    data_flag = True
+    none_flag = False
     assert leaves == []
-    assert tree.PyTreeType(True) is tree.PyTreeType.DATA
-    assert tree.PyTreeType(False) is tree.PyTreeType.NONE
+    assert tree.PyTreeType(data_flag) is tree.PyTreeType.DATA
+    assert tree.PyTreeType(none_flag) is tree.PyTreeType.NONE

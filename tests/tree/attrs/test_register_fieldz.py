@@ -7,7 +7,7 @@ from jarp import tree
 
 @attrs.define
 class Example:
-    data: jax.Array = tree.array()
+    data: jax.Array = tree.array()  # noqa: RUF009
     auto_value: object = tree.auto()
     meta: str = tree.static(default="tag")
 

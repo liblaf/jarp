@@ -1,3 +1,5 @@
+from typing import Any, cast
+
 import jax.numpy as jnp
 import numpy as np
 import pytest
@@ -31,5 +33,6 @@ def test_to_warp_converts_jax_arrays_and_rejects_unknown_inputs() -> None:
     assert wp.types.types_equal(converted.dtype, wp.float32)
     assert converted.requires_grad is True
 
+    unknown = cast("Any", object())
     with pytest.raises(TypeError):
-        to_warp(object())
+        to_warp(unknown)

@@ -1,4 +1,7 @@
+from typing import cast
+
 import jax.numpy as jnp
+from jax import Array
 
 from jarp import tree
 
@@ -25,13 +28,13 @@ def test_partition_and_combine_round_trip_mixed_trees() -> None:
     value = {"array": jnp.array([1, 2]), "meta": "tag", "none": None}
     data_leaves, aux = tree.partition(value)
     rebuilt = tree.combine(data_leaves, aux)
-    assert rebuilt["array"].tolist() == [1, 2]
+    assert cast("Array", rebuilt["array"]).tolist() == [1, 2]
     assert rebuilt["meta"] == "tag"
     assert rebuilt["none"] is None
 
 
 def test_partition_leaves_separates_arrays_from_metadata() -> None:
     data_leaves, meta_leaves = tree.partition_leaves([jnp.array([1]), "tag", None])
-    assert data_leaves[0].tolist() == [1]
+    assert cast("Array", data_leaves[0]).tolist() == [1]
     assert data_leaves[1:] == [None, None]
     assert meta_leaves == [None, "tag", None]

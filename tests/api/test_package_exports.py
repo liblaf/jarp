@@ -26,6 +26,4 @@ def test_submodule_exports_remain_discoverable() -> None:
     assert {"register_fieldz", "register_generic", "register_pytree_prelude"} <= set(
         jarp.tree.__all__
     )
-    assert {"jax_callable", "jax_kernel", "to_warp", "types"} <= set(
-        jarp.warp.__all__
-    )
+    assert {"jax_callable", "jax_kernel", "to_warp", "types"} <= set(jarp.warp.__all__)

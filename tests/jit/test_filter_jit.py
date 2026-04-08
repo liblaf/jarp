@@ -1,11 +1,14 @@
+from typing import Any
+
 import jax.numpy as jnp
+from jax import Array
 
 from jarp import filter_jit
 
 
 def test_filter_jit_preserves_static_metadata_and_wrapped_attrs() -> None:
     @filter_jit
-    def pack(x, label="tag"):
+    def pack(x: Array, label: str = "tag") -> dict[str, Any]:
         return {"x": x + 1, "label": label}
 
     result = pack(jnp.array([1, 2]), label="tag")
@@ -20,7 +23,7 @@ def test_filter_jit_supports_deferred_decoration_on_methods() -> None:
             self.factor = factor
 
         @filter_jit()
-        def apply(self, x, bias=0):
+        def apply(self, x: Array, bias: int = 0) -> Array:
             return x * self.factor + bias
 
     result = Scale(3).apply(jnp.array([1, 2]), bias=1)

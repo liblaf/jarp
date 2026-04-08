@@ -1,23 +1,41 @@
+from collections.abc import Callable
+from typing import Any, cast
+
 import jax.numpy as jnp
+import pytest
 import warp as wp
 
 import jarp.warp._jax_kernel as kernel_mod
 from jarp.warp import jax_kernel
 
 
-def test_jax_kernel_delegates_for_concrete_kernels(monkeypatch) -> None:
-    seen = {}
+def test_jax_kernel_delegates_for_concrete_kernels(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    seen: dict[str, Any] = {}
 
-    def fake_jax_kernel(kernel, **kwargs):
+    def fake_jax_kernel(
+        kernel: Callable[..., Any], **kwargs: Any
+    ) -> Callable[..., tuple[str, dict[str, Any], dict[str, Any]]]:
         seen["kernel"] = kernel
         seen["kwargs"] = kwargs
-        return lambda *args, **call_kwargs: (kernel.__name__, kwargs, call_kwargs)
 
-    monkeypatch.setattr(kernel_mod.warp.jax_experimental, "jax_kernel", fake_jax_kernel)
+        def wrapped(
+            *_args: Any, **call_kwargs: Any
+        ) -> tuple[str, dict[str, Any], dict[str, Any]]:
+            kernel_name = cast("Any", kernel).__name__
+            return kernel_name, kwargs, call_kwargs
 
-    def kernel(x):
+        return wrapped
+
+    monkeypatch.setattr(
+        kernel_mod.warp.jax_experimental,
+        "jax_kernel",
+        fake_jax_kernel,
+    )
+
+    def kernel(x: Any) -> None:
         del x
-        return None
 
     wrapped = jax_kernel(kernel, launch_dims=4)
     result = wrapped(jnp.array([1]), output_dims=1)
@@ -26,26 +44,43 @@ def test_jax_kernel_delegates_for_concrete_kernels(monkeypatch) -> None:
     assert result == ("kernel", {"launch_dims": 4}, {"output_dims": 1})
 
 
-def test_jax_kernel_resolves_overloads_from_runtime_dtypes(monkeypatch) -> None:
-    overload_calls = []
+def test_jax_kernel_resolves_overloads_from_runtime_dtypes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    overload_calls: list[tuple[Callable[..., Any], dict[str, Any]]] = []
 
-    def fake_overload(kernel, arg_types):
+    def fake_overload(
+        kernel: Callable[..., Any], arg_types: dict[str, Any]
+    ) -> tuple[str, Callable[..., Any], dict[str, Any]]:
         overload_calls.append((kernel, arg_types))
         return ("overloaded", kernel, arg_types)
 
-    def fake_jax_kernel(kernel, **kwargs):
-        return lambda *args, **call_kwargs: (kernel, kwargs, call_kwargs)
+    def fake_jax_kernel(
+        kernel: Callable[..., Any], **kwargs: Any
+    ) -> Callable[..., tuple[Any, dict[str, Any], dict[str, Any]]]:
+        def wrapped(
+            *_args: Any, **call_kwargs: Any
+        ) -> tuple[Any, dict[str, Any], dict[str, Any]]:
+            return kernel, kwargs, call_kwargs
+
+        return wrapped
 
     monkeypatch.setattr(kernel_mod.wp, "overload", fake_overload)
-    monkeypatch.setattr(kernel_mod.warp.jax_experimental, "jax_kernel", fake_jax_kernel)
+    monkeypatch.setattr(
+        kernel_mod.warp.jax_experimental,
+        "jax_kernel",
+        fake_jax_kernel,
+    )
 
-    def kernel(x):
+    def kernel(x: Any) -> None:
         del x
-        return None
+
+    def arg_types_factory(dtype: Any) -> dict[str, Any]:
+        return {"x": dtype}
 
     wrapped = jax_kernel(
         kernel,
-        arg_types_factory=lambda dtype: {"x": dtype},
+        arg_types_factory=arg_types_factory,
         enable_backward=True,
     )
     overloaded_kernel, kwargs, call_kwargs = wrapped(

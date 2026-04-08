@@ -1,4 +1,7 @@
+from typing import cast
+
 import jax.numpy as jnp
+from jax import Array
 
 from jarp import tree
 
@@ -9,7 +12,7 @@ def test_ravel_round_trips_mixed_trees() -> None:
     assert flat.tolist() == [1, 2]
 
     rebuilt = structure.unravel(flat)
-    assert rebuilt["x"].tolist() == [1, 2]
+    assert cast("Array", rebuilt["x"]).tolist() == [1, 2]
     assert rebuilt["meta"] == "tag"
     assert rebuilt["none"] is None
 

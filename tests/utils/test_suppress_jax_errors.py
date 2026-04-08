@@ -8,23 +8,35 @@ from jarp.utils import suppress_jax_errors
 
 
 def _trigger_tracer_integer_conversion() -> None:
+    pred = jnp.asarray(1, dtype=jnp.bool_)
+
+    def true_fun(i: int) -> int:
+        return [10, 20][i]
+
+    def false_fun(_i: int) -> int:
+        return -1
+
     jax.lax.cond(
-        jnp.array(True),
-        lambda i: [10, 20][i],
-        lambda i: -1,
+        pred,
+        true_fun,
+        false_fun,
         1,
     )
 
 
-def test_suppress_jax_errors_logs_and_swallows_jax_errors(caplog) -> None:
+def test_suppress_jax_errors_logs_and_swallows_jax_errors(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
     logger = logging.getLogger("tests.suppress_jax_errors")
-    with caplog.at_level(logging.ERROR, logger=logger.name):
-        with suppress_jax_errors("suppressed", logger=logger):
-            _trigger_tracer_integer_conversion()
+    with (
+        caplog.at_level(logging.ERROR, logger=logger.name),
+        suppress_jax_errors("suppressed", logger=logger),
+    ):
+        _trigger_tracer_integer_conversion()
     assert "suppressed" in caplog.text
 
 
 def test_suppress_jax_errors_leaves_other_exceptions_alone() -> None:
-    with pytest.raises(RuntimeError, match="boom"):
-        with suppress_jax_errors():
-            raise RuntimeError("boom")
+    msg = "boom"
+    with pytest.raises(RuntimeError, match="boom"), suppress_jax_errors():
+        raise RuntimeError(msg)
