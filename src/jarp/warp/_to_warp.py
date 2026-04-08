@@ -57,7 +57,7 @@ def _convert_dtype(dtype: Any, arr_shape: Sequence[int], arr_dtype: Any) -> Any:
 def _to_warp_wp(arr: wp.array, dtype: Any = None, **kwargs) -> wp.array:
     del kwargs
     dtype: Any = _convert_dtype(dtype, arr.shape, arr.dtype)
-    if dtype is not None and wp.types.types_equal(arr.dtype, dtype):
+    if dtype is None or wp.types.types_equal(arr.dtype, dtype):
         return arr
     msg: str = f"Cannot convert Warp array of dtype {arr.dtype} to {dtype}"
     raise ValueError(msg)

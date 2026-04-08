@@ -1,73 +1,42 @@
 import jax
 import jax.numpy as jnp
-import jax.tree_util as jtu
 import numpy as np
-from jax import Array
+import pytest
 
 import jarp
 
 
 @jarp.define
-class A:
-    a: Array = jarp.array(default=0.0)
-    b: str = jarp.static(default="")
-    c: Array | str = jarp.auto(default="")
+class Example:
+    data: object = jarp.array(default=0.0)
+    meta: str = jarp.static(default="x")
+    maybe: object = jarp.auto(default="y")
 
 
-def test_flatten_auto_is_data() -> None:
-    a = A()
-    a.c = jnp.zeros(())
-    leaves, _treedef = jax.tree.flatten(a)
-    assert len(leaves) == 2
-    np.testing.assert_allclose(leaves[0], a.a)
-    np.testing.assert_allclose(leaves[1], a.c)
+@jarp.frozen_static
+class Config:
+    name: str = "prod"
 
 
-def test_flatten_auto_is_meta() -> None:
-    a = A()
-    leaves, _treedef = jax.tree.flatten(a)
-    assert len(leaves) == 1
-    np.testing.assert_allclose(leaves[0], a.a)
+def test_define_auto_field_switches_between_data_and_metadata() -> None:
+    static_leaves, _ = jax.tree.flatten(Example())
+    dynamic_leaves, _ = jax.tree.flatten(Example(maybe=jnp.array([2])))
+
+    assert len(static_leaves) == 1
+    assert len(dynamic_leaves) == 2
+    np.testing.assert_array_equal(dynamic_leaves[1], jnp.array([2]))
 
 
-def test_flatten_with_keys_auto_is_data() -> None:
-    a = A()
-    leaves_with_path, _treedef = jax.tree.flatten_with_path(a)
-    assert len(leaves_with_path) == 1
-    paths: list[jtu.KeyPath] = [path for path, _ in leaves_with_path]
-    assert paths[0] == (jtu.GetAttrKey("a"),)
-    leaves: list[Array] = [leaf for _, leaf in leaves_with_path]
-    np.testing.assert_allclose(leaves[0], a.a)
+def test_frozen_static_registers_instances_as_static_leaves() -> None:
+    config = Config()
+    leaves, treedef = jax.tree.flatten(config)
+    assert leaves == []
+    assert jax.tree.unflatten(treedef, leaves) == config
 
 
-def test_flatten_with_keys_auto_is_meta() -> None:
-    a = A()
-    a.c = jnp.zeros(())
-    leaves_with_path, _treedef = jax.tree.flatten_with_path(a)
-    assert len(leaves_with_path) == 2
-    paths: list[jtu.KeyPath] = [path for path, _ in leaves_with_path]
-    assert paths[0] == (jtu.GetAttrKey("a"),)
-    assert paths[1] == (jtu.GetAttrKey("c"),)
-    leaves: list[Array] = [leaf for _, leaf in leaves_with_path]
-    np.testing.assert_allclose(leaves[0], a.a)
-    np.testing.assert_allclose(leaves[1], a.c)
+def test_define_warns_for_non_frozen_static_classes() -> None:
+    with pytest.warns(UserWarning, match="not frozen"):
 
-
-def test_unflatten_auto_is_data() -> None:
-    a = A()
-    a.c = jnp.zeros(())
-    leaves, treedef = jax.tree.flatten(a)
-    a_recon: A = jax.tree.unflatten(treedef, leaves)
-    np.testing.assert_allclose(a_recon.a, a.a)
-    assert a_recon.b == a.b
-    assert isinstance(a_recon.c, Array)
-    np.testing.assert_allclose(a_recon.c, a.c)
-
-
-def test_unflatten_auto_is_meta() -> None:
-    a = A()
-    leaves, treedef = jax.tree.flatten(a)
-    a_recon: A = jax.tree.unflatten(treedef, leaves)
-    np.testing.assert_allclose(a_recon.a, a.a)
-    assert a_recon.b == a.b
-    assert a_recon.c == a.c
+        @jarp.define(pytree="static")
+        class WarningConfig:
+            name: str = "dev"

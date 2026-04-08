@@ -3,6 +3,7 @@ import pytest
 
 
 def pytest_configure(config: pytest.Config) -> None:  # noqa: ARG001
+    jax.config.update("jax_platforms", "cpu")
     jax.config.update("jax_check_tracer_leaks", True)  # noqa: FBT003
     jax.config.update("jax_debug_nans", True)  # noqa: FBT003
     jax.config.update("jax_enable_x64", True)  # noqa: FBT003

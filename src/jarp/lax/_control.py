@@ -1,17 +1,34 @@
-import logging
+from __future__ import annotations
+
+import functools
 from collections.abc import Callable, Sequence
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import jax
-from jaxtyping import Array, ArrayLike, ScalarLike
+import wrapt
+from jaxtyping import ArrayLike, ScalarLike
 
 from jarp import utils
 
+if TYPE_CHECKING:
+    from _typeshed import IdentityFunction
 type BooleanNumeric = ScalarLike
 
-logger: logging.Logger = logging.getLogger(__name__)
+
+def _wraps(wrapped: Callable[..., Any]) -> IdentityFunction:
+    def decorator[**P, T](fallback: Callable[P, T]) -> Callable[P, T]:
+        @functools.wraps(wrapped)
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+            with utils.suppress_jax_errors():
+                return wrapped(*args, **kwargs)
+            return fallback(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
 
 
+@_wraps(jax.lax.cond)
 def cond[*Ts, T](
     pred: ScalarLike,
     true_fun: Callable[[*Ts], T],
@@ -32,13 +49,12 @@ def cond[*Ts, T](
     Returns:
         The value returned by the selected branch.
     """
-    with utils.suppress_jax_errors():
-        return jax.lax.cond(pred, true_fun, false_fun, *operands)
     if pred:
         return true_fun(*operands)
     return false_fun(*operands)
 
 
+@_wraps(jax.lax.fori_loop)
 def fori_loop[T](
     lower: int, upper: int, body_fun: Callable[[int, T], T], init_val: T, **kwargs: Any
 ) -> T:
@@ -58,14 +74,13 @@ def fori_loop[T](
     Returns:
         The final loop value.
     """
-    with utils.suppress_jax_errors():
-        return jax.lax.fori_loop(lower, upper, body_fun, init_val, **kwargs)
     val: T = init_val
     for i in range(lower, upper):
         val: T = body_fun(i, val)
     return val
 
 
+@_wraps(jax.lax.switch)
 def switch[*Ts, T](
     index: ArrayLike, branches: Sequence[Callable[[*Ts], T]], *operands: *Ts
 ) -> T:
@@ -82,12 +97,11 @@ def switch[*Ts, T](
     Returns:
         The value returned by the selected branch.
     """
-    with utils.suppress_jax_errors():
-        return jax.lax.switch(index, branches, *operands)
     index: int = min(max(0, cast("int", index)), len(branches) - 1)
     return branches[index](*operands)
 
 
+@_wraps(jax.lax.while_loop)
 def while_loop[T](
     cond_fun: Callable[[T], BooleanNumeric], body_fun: Callable[[T], T], init_val: T
 ) -> T:
@@ -104,8 +118,6 @@ def while_loop[T](
     Returns:
         The final loop state.
     """
-    with utils.suppress_jax_errors():
-        return jax.lax.while_loop(cond_fun, body_fun, init_val)
     val: T = init_val
     while cond_fun(val):
         val: T = body_fun(val)

@@ -1,35 +1,33 @@
-from typing import Any
-
 import jax.numpy as jnp
 import numpy as np
 
 import jarp
 
 
-def test_ravel() -> None:
-    obj: dict[str, Any] = {"a": jnp.zeros((3,)), "b": jnp.ones((4,)), "static": "foo"}
+def test_ravel_round_trips_mixed_trees() -> None:
+    obj = {"a": jnp.zeros((2,)), "b": jnp.ones((3,)), "meta": "x"}
     flat, structure = jarp.ravel(obj)
-    assert flat.shape == (7,)
+    rebuilt = structure.unravel(flat)
 
-    # ravel flat array is identity
-    np.testing.assert_allclose(flat, structure.ravel(flat))
-
-    recon: dict[str, Any] = structure.unravel(flat)
-    np.testing.assert_allclose(recon["a"], jnp.zeros((3,)))
-    np.testing.assert_allclose(recon["b"], jnp.ones((4,)))
-    assert recon["static"] == obj["static"]
-
-    # unravel pytree is identity
-    recon: dict[str, Any] = structure.unravel(obj)
-    np.testing.assert_allclose(recon["a"], jnp.zeros((3,)))
-    np.testing.assert_allclose(recon["b"], jnp.ones((4,)))
-    assert recon["static"] == obj["static"]
+    assert flat.shape == (5,)
+    np.testing.assert_array_equal(structure.ravel(obj), flat)
+    np.testing.assert_array_equal(rebuilt["a"], obj["a"])
+    np.testing.assert_array_equal(rebuilt["b"], obj["b"])
+    assert rebuilt["meta"] == "x"
 
 
-def test_ravel_empty() -> None:
-    obj: dict[str, Any] = {"static": "foo"}
-    flat, structure = jarp.ravel(obj)
+def test_ravel_handles_leaf_structures_and_dtype_overrides() -> None:
+    flat, structure = jarp.ravel("meta")
+    assert structure.is_leaf
     assert flat.shape == (0,)
+    assert structure.unravel(flat) == "meta"
 
-    recon: dict[str, Any] = structure.unravel(flat)
-    assert recon == {"static": "foo"}
+    leaf = jnp.array([[1, 2]], dtype=jnp.int32)
+    flat_leaf, leaf_structure = jarp.ravel(leaf)
+    rebuilt = leaf_structure.unravel(flat_leaf, dtype=jnp.float32)
+
+    assert rebuilt.dtype == jnp.float32
+    np.testing.assert_array_equal(
+        leaf_structure.ravel(jnp.array([[3, 4]], dtype=jnp.int32)),
+        jnp.array([3, 4], dtype=jnp.int32),
+    )
