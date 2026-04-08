@@ -1,31 +1,41 @@
-# Just-in-time compilation
+# Filtered Call Wrappers
 
-This benchmark measures the invocation overhead of a "no-op" JIT-compiled function. Trace overhead is excluded by warming up the JIT cache.
+This benchmark compares the steady-state invocation overhead around a no-op
+function after warmup. `jax.jit` and `equinox.filter_jit` measure compiled call
+overhead. `jarp.filter_jit` measures the cost of partitioning mixed inputs and
+recombining outputs on the same callable shape.
 
 [Source Code](https://github.com/liblaf/jarp/blob/main/benches/jit.py)
 
-|         Method          | No PyTree | Complex PyTree |
-| :---------------------: | --------: | -------------: |
-|        `jax.jit`        |   7.36 µs |      768.07 µs |
-| `jarp.jit(filter=True)` |  11.09 µs |      933.26 µs |
-|  `equinox.filter_jit`   | 292.72 µs |     1149.43 µs |
+|        Method        | No PyTree | Complex PyTree |
+| :------------------: | --------: | -------------: |
+|      `jax.jit`       |   7.36 µs |      768.07 µs |
+|  `jarp.filter_jit`   |  11.09 µs |      933.26 µs |
+| `equinox.filter_jit` | 292.72 µs |     1149.43 µs |
 
 ## JAX
 
-`jax.jit` provides the baseline performance. However, it enforces strict requirements on arguments: all leaves in the PyTree must be JAX arrays (or compatible types), otherwise JAX will try to trace them and raise an error.
+`jax.jit` provides the compiled-call baseline. It also imposes the strictest
+input requirements: leaves must be JAX-friendly values or JAX will raise while
+tracing.
 
 ## JARP
 
-`jarp.jit(filter=True)` introduces a lightweight filtering mechanism. It automatically partitions the arguments into:
+`jarp.filter_jit` introduces a lightweight filtering mechanism. It partitions
+the call into:
 
-- **Dynamic leaves**: JAX arrays, which are passed to the JIT-compiled function.
-- **Static leaves**: Non-array values, which are treated as static data (part of the compiled function's constant context).
+- **Dynamic leaves**: JAX arrays and `None` placeholders.
+- **Static leaves**: Other values, which are stored as metadata and stitched
+  back into the original call shape.
 
-This allows users to pass arbitrary PyTrees containing mixed data types to JIT-compiled functions without manual intervention. The overhead for this convenience is small (4 µs).
+That lets users pass mixed PyTrees through one callable boundary without manual
+partitioning. The overhead for this convenience is small in the benchmark.
 
 ## Equinox
 
-`equinox.filter_jit` offers similar functionality to `jarp.jit`, separating dynamic and static parts of a PyTree. However, in this microbenchmark, its invocation overhead is significantly higher.
+`equinox.filter_jit` is the closest comparison point for mixed-tree call
+wrappers. In this microbenchmark, its invocation overhead is significantly
+higher.
 
 ## Test Environment
 

@@ -3,7 +3,7 @@
 
 [project]
 name = "jarp"
-description = "Python utilities for JAX and Warp with filtered jit, pytree helpers, and array-to-Warp conversion."
+description = "PyTree helpers and Warp adapters for JAX code, with mixed data/metadata partitioning and array-to-Warp conversion."
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"

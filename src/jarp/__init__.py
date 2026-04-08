@@ -1,6 +1,7 @@
 """Utilities for mixed JAX PyTrees and Warp interop.
 
-The top-level package re-exports the filtered [`jit`][jarp.jit] wrapper, the
+The top-level package re-exports the filtered call wrappers
+[`filter_jit`][jarp.filter_jit] and [`fallback_jit`][jarp.fallback_jit], the
 most common helpers from [jarp.tree][], and Warp integration utilities from
 [jarp.warp][]. Import [jarp.lax][], [jarp.tree][], or [jarp.warp][] directly
 when you need the larger submodule surfaces.

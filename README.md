@@ -26,21 +26,20 @@
 
 </div>
 
-`jarp` is a small utility library for JAX code that mixes traceable arrays with
-ordinary Python metadata, plus a few helpers for crossing into NVIDIA Warp.
-It focuses on the points where a plain `jax.jit` or basic PyTree registration
-starts to feel too rigid:
+`jarp` helps when JAX code mixes traceable arrays with ordinary Python
+metadata, and when the same program needs to cross into NVIDIA Warp. It
+packages a few focused tools around that boundary:
 
-- `jarp.jit(filter=True)` partitions mixed PyTrees into dynamic array leaves and
-  static metadata automatically.
-- `jarp.define`, `jarp.frozen`, `jarp.array()`, `jarp.static()`, and
-  `jarp.auto()` make `attrs` classes flatten the way JAX code expects.
-- `jarp.ravel` turns the dynamic leaves of a tree into one flat vector and
-  returns a reusable `Structure` for round trips.
-- `jarp.to_warp`, `jarp.warp.jax_callable`, and `jarp.warp.jax_kernel` cover
-  the common JAX-to-Warp interop paths.
-- `jarp.lax` mirrors a small slice of `jax.lax` with optional eager fallbacks
-  for debugging or non-jitted execution.
+- `filter_jit` and `fallback_jit` wrap callables while partitioning arrays away
+  from static metadata.
+- `define`, `frozen`, `array()`, `static()`, and `auto()` make `attrs` classes
+  flatten the way JAX expects.
+- `ravel` turns the dynamic leaves of a tree into one flat vector and returns a
+  reusable `Structure` for round trips.
+- `jarp.lax` retries a small slice of `jax.lax` eagerly when JAX rejects
+  Python-only callback logic.
+- `to_warp`, `jarp.warp.jax_callable`, and `jarp.warp.jax_kernel` cover the
+  common JAX-to-Warp interop paths.
 
 ## 📦 Installation
 
@@ -63,8 +62,7 @@ uv add 'jarp[cuda13]'
 ## 🚀 Quick Start
 
 This example shows the core workflow: define a mixed data-and-metadata PyTree
-once, then compile functions against it without manual `static_argnums`
-plumbing.
+once, then reuse the same split at the function boundary.
 
 ```python
 import jax.numpy as jnp
@@ -77,7 +75,7 @@ class Batch:
     label: str = jarp.static()
 
 
-@jarp.jit(filter=True)
+@jarp.filter_jit
 def normalize(batch: Batch) -> Batch:
     centered = batch.values - jnp.mean(batch.values)
     return Batch(values=centered, label=batch.label)
@@ -87,8 +85,9 @@ batch = Batch(values=jnp.array([1.0, 2.0, 3.0]), label="train")
 result = normalize(batch)
 ```
 
-The array payload stays traceable, while the string label remains static
-metadata.
+The array payload stays on the dynamic side of the partition, while the string
+label remains static metadata. `auto()` is the middle ground when a field
+should follow the runtime value.
 
 `jarp.ravel` handles the other common workflow: flatten only the dynamic leaves
 into one vector and keep enough structure around to rebuild the tree later.
@@ -115,6 +114,11 @@ import jarp
 
 arr_wp = jarp.to_warp(jnp.zeros((5, 3), jnp.float32), (-1, Any))
 ```
+
+When JAX control-flow primitives reject Python-only callback logic,
+`jarp.lax.cond`, `switch`, `fori_loop`, and `while_loop` try the corresponding
+`jax.lax` primitive first and then rerun eagerly after selected JAX tracing or
+indexing errors.
 
 For broader PyTree traversal helpers, see `jarp.PyTreeProxy`,
 `jarp.partial`, `jarp.tree.register_generic`, and the lower-level
@@ -143,6 +147,7 @@ uv run zensical build
 
 - [Documentation site](https://liblaf.github.io/jarp/)
 - [Getting started guide](docs/guides/getting-started.md)
+- [Call wrappers guide](docs/guides/call-wrappers.md)
 - [PyTree workflows](docs/guides/pytree-workflows.md)
 - [Warp interop guide](docs/guides/warp.md)
 - [API reference map](docs/reference/README.md)

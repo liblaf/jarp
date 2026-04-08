@@ -1,50 +1,73 @@
+from __future__ import annotations
+
+import functools
 from collections.abc import Callable, Sequence
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import jax
-from jaxtyping import Array, ArrayLike, ScalarLike
+from jaxtyping import ArrayLike, ScalarLike
+
+from jarp import utils
+
+if TYPE_CHECKING:
+    from _typeshed import IdentityFunction
+
 
 type BooleanNumeric = ScalarLike
 
 
+def _wraps(wrapped: Callable[..., Any]) -> IdentityFunction:
+    def decorator[**P, T](fallback: Callable[P, T]) -> Callable[P, T]:
+        @functools.wraps(wrapped)
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+            with utils.suppress_jax_errors():
+                return wrapped(*args, **kwargs)
+            return fallback(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+@_wraps(jax.lax.cond)
 def cond[*Ts, T](
     pred: ScalarLike,
     true_fun: Callable[[*Ts], T],
     false_fun: Callable[[*Ts], T],
     *operands: *Ts,
-    jit: bool = True,
 ) -> T:
-    """Choose between two branches with optional eager execution.
+    """Choose between two branches, then retry eagerly if JAX rejects them.
+
+    The wrapper first calls [`jax.lax.cond`][jax.lax.cond]. If that raises
+    [`jax.errors.JAXTypeError`][jax.errors.JAXTypeError] or
+    [`jax.errors.JAXIndexError`][jax.errors.JAXIndexError], it logs the
+    exception and reruns the selected branch in plain Python.
 
     Args:
-        pred: Scalar predicate. When ``jit=False``, Python truthiness decides
-            which branch runs.
+        pred: Scalar predicate. Python truthiness decides which branch runs on
+            the fallback path.
         true_fun: Branch evaluated when ``pred`` is true.
         false_fun: Branch evaluated when ``pred`` is false.
         *operands: Positional operands forwarded to the selected branch.
-        jit: When true, dispatch to [`jax.lax.cond`][jax.lax.cond]. When false,
-            execute the selected branch directly in Python.
 
     Returns:
         The value returned by the selected branch.
     """
-    if jit:
-        return jax.lax.cond(pred, true_fun, false_fun, *operands)
     if pred:
         return true_fun(*operands)
     return false_fun(*operands)
 
 
+@_wraps(jax.lax.fori_loop)
 def fori_loop[T](
-    lower: int,
-    upper: int,
-    body_fun: Callable[[int, T], T],
-    init_val: T,
-    *,
-    jit: bool = True,
-    **kwargs: Any,
+    lower: int, upper: int, body_fun: Callable[[int, T], T], init_val: T, **kwargs: Any
 ) -> T:
-    """Run a counted loop with either JAX or Python control flow.
+    """Run a counted loop, then retry in Python if JAX rejects the body.
+
+    The wrapper first calls [`jax.lax.fori_loop`][jax.lax.fori_loop]. If that
+    raises [`jax.errors.JAXTypeError`][jax.errors.JAXTypeError] or
+    [`jax.errors.JAXIndexError`][jax.errors.JAXIndexError], it logs the
+    exception and runs an ordinary Python ``for`` loop instead.
 
     Args:
         lower: Inclusive loop lower bound.
@@ -52,105 +75,64 @@ def fori_loop[T](
         body_fun: Callback that receives the iteration index and current loop
             value, then returns the next loop value.
         init_val: Initial loop value.
-        jit: When true, dispatch to [`jax.lax.fori_loop`][jax.lax.fori_loop].
-            When false, run a Python ``for`` loop.
         **kwargs: Extra keyword arguments forwarded to
-            [`jax.lax.fori_loop`][jax.lax.fori_loop] when ``jit=True``.
+            [`jax.lax.fori_loop`][jax.lax.fori_loop] on the first attempt.
+            They are ignored on the Python fallback path.
 
     Returns:
         The final loop value.
     """
-    if jit:
-        return jax.lax.fori_loop(lower, upper, body_fun, init_val, **kwargs)
+    del kwargs
     val: T = init_val
     for i in range(lower, upper):
         val: T = body_fun(i, val)
     return val
 
 
-def select(
-    pred: ArrayLike, on_true: ArrayLike, on_false: ArrayLike, *, jit: bool = True
-) -> Array:
-    """Select values elementwise using [`jax.lax.select`][jax.lax.select].
-
-    Args:
-        pred: Boolean predicate array.
-        on_true: Values used where ``pred`` is true.
-        on_false: Values used where ``pred`` is false.
-        jit: Accepted for API consistency with the other wrappers. This
-            function always dispatches to [`jax.lax.select`][jax.lax.select].
-
-    Returns:
-        The elementwise selection result.
-    """
-    del jit
-    return jax.lax.select(pred, on_true, on_false)
-
-
-def select_n(which: ArrayLike, *cases: ArrayLike, jit: bool = True) -> Array:
-    """Select one array from ``cases`` using [`jax.lax.select_n`][jax.lax.select_n].
-
-    Args:
-        which: Integer selector array.
-        *cases: Candidate arrays to choose from.
-        jit: Accepted for API consistency with the other wrappers. This
-            function always dispatches to
-            [`jax.lax.select_n`][jax.lax.select_n].
-
-    Returns:
-        The array chosen by ``which``.
-    """
-    del jit
-    return jax.lax.select_n(which, *cases)
-
-
+@_wraps(jax.lax.switch)
 def switch[*Ts, T](
-    index: ArrayLike,
-    branches: Sequence[Callable[[*Ts], T]],
-    *operands: *Ts,
-    jit: bool = True,
+    index: ArrayLike, branches: Sequence[Callable[[*Ts], T]], *operands: *Ts
 ) -> T:
-    """Choose one branch by index with optional eager execution.
+    """Choose one branch by index, then retry eagerly if JAX rejects it.
+
+    The wrapper first calls [`jax.lax.switch`][jax.lax.switch]. If that raises
+    [`jax.errors.JAXTypeError`][jax.errors.JAXTypeError] or
+    [`jax.errors.JAXIndexError`][jax.errors.JAXIndexError], it logs the
+    exception, clamps ``index`` into the valid range, and dispatches in plain
+    Python.
 
     Args:
-        index: Branch index. When ``jit=False``, the value is clamped into the
-            valid range before dispatch.
+        index: Branch index. The fallback path clamps the value into the valid
+            range before dispatch.
         branches: Candidate branch functions.
         *operands: Positional operands forwarded to the selected branch.
-        jit: When true, dispatch to [`jax.lax.switch`][jax.lax.switch]. When
-            false, execute the selected branch directly in Python.
 
     Returns:
         The value returned by the selected branch.
     """
-    if jit:
-        return jax.lax.switch(index, branches, *operands)
     index: int = min(max(0, cast("int", index)), len(branches) - 1)
     return branches[index](*operands)
 
 
+@_wraps(jax.lax.while_loop)
 def while_loop[T](
-    cond_fun: Callable[[T], BooleanNumeric],
-    body_fun: Callable[[T], T],
-    init_val: T,
-    *,
-    jit: bool = True,
+    cond_fun: Callable[[T], BooleanNumeric], body_fun: Callable[[T], T], init_val: T
 ) -> T:
-    """Run a loop with either ``jax.lax.while_loop`` or Python control flow.
+    """Run a loop, then retry in Python if JAX rejects the callbacks.
+
+    The wrapper first calls [`jax.lax.while_loop`][jax.lax.while_loop]. If
+    that raises [`jax.errors.JAXTypeError`][jax.errors.JAXTypeError] or
+    [`jax.errors.JAXIndexError`][jax.errors.JAXIndexError], it logs the
+    exception and reruns the loop eagerly in Python.
 
     Args:
         cond_fun: Predicate evaluated on the loop state.
         body_fun: Function that produces the next loop state.
         init_val: Initial loop state.
-        jit: When true, dispatch to
-            [`jax.lax.while_loop`][jax.lax.while_loop]. When false, run an
-            eager Python ``while`` loop with the same callbacks.
 
     Returns:
         The final loop state.
     """
-    if jit:
-        return jax.lax.while_loop(cond_fun, body_fun, init_val)
     val: T = init_val
     while cond_fun(val):
         val: T = body_fun(val)

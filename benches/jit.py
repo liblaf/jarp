@@ -30,7 +30,7 @@ def print_elapsed(name: str, time_taken: float) -> None:
 
 def main() -> None:
     fun_jax: Callable[..., Any] = jax.jit(fun)
-    fun_jarp: Callable[..., Any] = jarp.jit(fun, filter=True)
+    fun_jarp: Callable[..., Any] = jarp.filter_jit(fun)
     fun_eqx: Callable[..., Any] = eqx.filter_jit(fun)
     print_elapsed("JAX JIT", bench(lambda: jax.block_until_ready(fun_jax())))
     print_elapsed("JARP JIT", bench(lambda: jax.block_until_ready(fun_jarp())))

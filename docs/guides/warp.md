@@ -1,8 +1,8 @@
 # Warp Interop
 
 `jarp.warp` covers the boundary between JAX or NumPy arrays and NVIDIA Warp.
-The simple case is array conversion. The more advanced case is exposing Warp
-functions back to JAX through Warp's `jax_experimental` adapters.
+The simple case is array conversion. The more advanced case is rebuilding Warp
+callables and kernel overloads from the runtime JAX dtypes.
 
 ## Convert Arrays To Warp
 
@@ -26,41 +26,24 @@ counts. The scalar dtype defaults to the array dtype when the tuple ends in
 For JAX arrays, `requires_grad=True` is applied after `warp.from_jax(...)` so
 the resulting `warp.array` can opt into Warp gradients when needed.
 
-## Expose Generic Warp Kernels To JAX
+## Expose Generic Warp Adapters To JAX
 
-```python
-from typing import Any
+[`jax_callable`][jarp.warp.jax_callable] can treat its input function as a
+factory keyed by the runtime Warp scalar dtypes inferred from the JAX
+arguments. The wrapper caches each factory result by dtype signature.
 
-import jax.numpy as jnp
-import jarp
-import warp as wp
+[`jax_kernel`][jarp.warp.jax_kernel] performs the related overload-selection
+step for Warp kernels when you provide `arg_types_factory`.
 
-
-@jarp.warp.jax_kernel(
-    arg_types_factory=lambda dtype: {"x": wp.array1d[dtype], "y": wp.array1d[dtype]}
-)
-@wp.kernel
-def identity_kernel(x: wp.array1d[Any], y: wp.array1d[Any]) -> None:
-    tid = wp.tid()
-    y[tid] = x[tid]
-
-
-(y,) = identity_kernel(jnp.ones((7,), jnp.float32))
-```
-
-This pattern chooses a Warp overload from the runtime JAX dtypes. The generic
-`jax_callable` wrapper follows the same idea, but builds a callable factory
-instead of an overload signature.
-
-The repository's `jax_callable` and `jax_kernel` tests are skipped when CUDA is
-unavailable, so these adapters should be treated as Warp-runtime features whose
-availability depends on the local Warp setup.
+The repository proves the adapter wiring and dtype dispatch in unit tests, but
+running real Warp kernels still depends on the local Warp runtime and hardware
+setup.
 
 ## Precision-Aware Warp Types
 
-`jarp.warp.types.floating`, `vecN`, and `matMN` follow JAX's active
-`jax_enable_x64` setting. Use them when Warp dtypes should match the precision
-mode already chosen by the surrounding JAX program.
+[`jarp.warp.types.floating`][jarp.warp.types.floating], `vecN`, and `matMN`
+follow JAX's active `jax_enable_x64` setting. Use them when Warp dtypes should
+match the precision mode already chosen by the surrounding JAX program.
 
 See [`jarp.warp`](../reference/jarp/warp/README.md) and
 [`jarp.warp.types`](../reference/jarp/warp/types.md) for the full API surface.
