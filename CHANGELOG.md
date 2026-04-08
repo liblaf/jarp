@@ -7,6 +7,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog-config-spec/blob/master/versions/2.2.0/README.md),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.2.0](https://github.com/liblaf/jarp/releases/tag/v0.2.0) - 2026-04-08
+
+### 💥 BREAKING CHANGES
+
+- **(jit)** `jarp.jit` is no longer exported; use `jarp.filter_jit` for partitioned calls and `jarp.fallback_jit` when metadata-dependent inputs need a cached Python fallback. - [350b08f](https://github.com/liblaf/jarp/commit/350b08f386bc71e404ca29a7ef0192fed7198a47) by [@liblaf](https://github.com/liblaf)
+
+### ✨ Features
+
+- **(jit)** **\[breaking\]** add filter and fallback call wrappers - [350b08f](https://github.com/liblaf/jarp/commit/350b08f386bc71e404ca29a7ef0192fed7198a47) by [@liblaf](https://github.com/liblaf)
+- **(lax)** add eager control-flow wrappers and docs - [142e878](https://github.com/liblaf/jarp/commit/142e87872ed166e2daf600317e0a656f17fa044b) by [@liblaf](https://github.com/liblaf)
+
+### 📝 Documentation
+
+- expand package docs and inline API docstrings - [f3a7377](https://github.com/liblaf/jarp/commit/f3a73770e9a96c2306e4e14b48eccfa2dd90b5f5) by [@liblaf](https://github.com/liblaf)
+
+### ❤️ Contributors
+
+- [@liblaf](https://github.com/liblaf)
+- [@renovate[bot]](https://github.com/apps/renovate)
+- [@liblaf-copier[bot]](https://github.com/apps/liblaf-copier) made their first contribution in [#33](https://github.com/liblaf/jarp/pull/33)
+
 ## [v0.1.9](https://github.com/liblaf/jarp/releases/tag/v0.1.9) - 2026-03-31
 
 ### 🛠 Builds
@@ -19,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ❤️ Contributors
 
+- [@liblaf-release-please[bot]](https://github.com/apps/liblaf-release-please) made their first contribution in [#30](https://github.com/liblaf/jarp/pull/30)
 - [@liblaf](https://github.com/liblaf)
 - [@renovate[bot]](https://github.com/apps/renovate)
 
