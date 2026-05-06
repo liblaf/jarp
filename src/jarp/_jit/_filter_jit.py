@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import functools
 from collections.abc import Callable, Iterable
-from typing import TYPE_CHECKING, Any, Self, TypedDict, Unpack, overload
+from typing import TYPE_CHECKING, Any, Protocol, Self, TypedDict, Unpack, overload
 
+import jax
 from jaxtyping import Array
 
 from jarp import tree
@@ -13,6 +14,15 @@ if TYPE_CHECKING:
 
 
 type Data = Iterable[Array | None]
+
+
+class InnerLike[**P, T](Protocol):
+    def __call__(
+        self,
+        inputs_data: Data,
+        fun_data: Data,
+        inputs_meta: tree.AuxData[tuple[tuple[Any, ...], dict[str, Any]]],
+    ) -> tuple[Data, tree.AuxData[T]]: ...
 
 
 @tree.frozen_static
@@ -35,7 +45,7 @@ class Inner[**P, T]:
 @tree.define(slots=False)
 class Outer[**P, T]:
     fun_data: Data
-    inner: Inner[P, T] = tree.static()
+    inner: InnerLike[P, T] = tree.static()
 
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T:
         inputs_data, inputs_meta = tree.partition((args, kwargs))
@@ -96,6 +106,7 @@ def filter_jit[F: Callable[..., Any]](
         return functools.partial(filter_jit, **kwargs)
     fun_data, fun_meta = tree.partition(fun)
     inner: Inner = Inner(fun_meta=fun_meta)
-    outer: Outer = Outer(fun_data=fun_data, inner=inner)
+    inner_jit: InnerLike = jax.jit(inner, **kwargs)
+    outer: Outer = Outer(fun_data=fun_data, inner=inner_jit)
     functools.update_wrapper(outer, fun)
     return outer

@@ -5,7 +5,6 @@ import attrs
 import jax
 import jax.tree_util as jtu
 from jax import Array
-from jax._src.tree_util import _registry
 from typing_extensions import TypeIs
 
 
@@ -21,7 +20,7 @@ class AuxData[T]:
     """
 
     meta_leaves: tuple[Any, ...]
-    treedef: Any
+    treedef: jtu.PyTreeDef
 
 
 def is_data(obj: Any) -> bool:
@@ -31,7 +30,7 @@ def is_data(obj: Any) -> bool:
     type already has a JAX PyTree registration. Everything else is treated as
     static metadata by [`partition`][jarp.tree.partition].
     """
-    return obj is None or isinstance(obj, Array) or type(obj) in _registry
+    return isinstance(obj, Array) or jtu.is_tree_node(type(obj))
 
 
 def is_leaf(obj: Any) -> TypeIs[Array | None]:
@@ -67,11 +66,7 @@ def partition[T](obj: T) -> tuple[list[Array | None], AuxData[T]]:
     ``None`` in the data list and are stored in the accompanying
     [`AuxData`][jarp.tree.AuxData].
     """
-    leaves: list[Any]
-    treedef: Any
     leaves, treedef = jax.tree.flatten(obj)
-    data_leaves: list[Array | None]
-    meta_leaves: list[Any]
     data_leaves, meta_leaves = partition_leaves(leaves)
     return data_leaves, AuxData(tuple(meta_leaves), treedef)
 

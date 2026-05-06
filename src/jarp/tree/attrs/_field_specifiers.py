@@ -1,15 +1,13 @@
 from __future__ import annotations
 
 import enum
+import functools
 from collections.abc import Callable, Mapping
 from typing import Any, TypedDict, Unpack
 
 import attrs
 import jax.numpy as jnp
 from jax import Array
-from jax.typing import ArrayLike
-
-from ._utils import _wraps
 
 
 class FieldType(enum.StrEnum):
@@ -62,19 +60,23 @@ class FieldOptions[T](TypedDict, total=False):
     static: FieldType | bool | None
 
 
-def array(**kwargs: Unpack[FieldOptions[ArrayLike | None]]) -> Array:
+def _wraps[F: Callable](wrapped: F) -> Callable[[Any], F]:
+    return functools.wraps(wrapped, assigned=("__annotations__", "__type_params__"))  # ty:ignore[invalid-return-type]
+
+
+def array(**kwargs: Unpack[FieldOptions[Any]]) -> Array:
     """Create a data field whose default is normalized to a JAX array.
 
     When ``default`` is a concrete array-like value, ``array`` rewrites it into
     a factory so each instance receives its own array object.
     """
     if "default" in kwargs and "factory" not in kwargs:
-        default: ArrayLike | None = kwargs["default"]
+        default: Any = kwargs["default"]
         if not (default is None or isinstance(default, attrs.Factory)):  # ty:ignore[invalid-argument-type]
             default: Array = jnp.asarray(default)
             kwargs.pop("default")
             kwargs["factory"] = lambda: default
-    return field(**kwargs)
+    return field(**kwargs)  # ty:ignore[no-matching-overload]
 
 
 @_wraps(attrs.field)

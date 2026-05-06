@@ -9,9 +9,8 @@ from jaxtyping import Array, DTypeLike, Shaped
 from ._filters import combine_leaves, partition_leaves
 from .attrs import frozen_static
 
-type PyTreeDef = Any
 type Shape = tuple[int, ...]
-type Vector = Shaped[Array, " N"]
+type Array1D = Shaped[Array, " N"]
 
 
 @frozen_static
@@ -27,14 +26,14 @@ class Structure[T]:
     meta_leaves: tuple[Any, ...]
     offsets: tuple[int, ...]
     shapes: tuple[Shape | None, ...]
-    treedef: PyTreeDef
+    treedef: jtu.PyTreeDef
 
     @property
     def is_leaf(self) -> bool:
         """Return whether the recorded tree was a single leaf."""
         return jtu.treedef_is_leaf(self.treedef)
 
-    def ravel(self, tree: T | Array) -> Vector:
+    def ravel(self, tree: T | Array) -> Array1D:
         """Flatten a compatible tree or flatten an array in-place.
 
         Args:
@@ -132,7 +131,7 @@ def _shapes_from_leaves(leaves: Iterable[Any | None]) -> tuple[Shape | None, ...
     return tuple(None if leaf is None else jnp.shape(leaf) for leaf in leaves)
 
 
-@jax.jit(static_argnums=(1, 2))
+@jax.jit(static_argnames=("offsets", "shapes"))
 def _unravel(
     flat: Array, offsets: tuple[int, ...], shapes: tuple[Shape | None, ...]
 ) -> list[Array | None]:

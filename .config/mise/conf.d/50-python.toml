@@ -5,6 +5,7 @@
 [hooks.enter]
 task = "install"
 
+#
 [tasks."docs:build"]
 description = "Build the documentation site"
 run = [
@@ -17,18 +18,19 @@ run = [
 [tasks."docs:serve"]
 description = "Serve the documentation site locally"
 run = ["rm --force --recursive '{{ config_root }}/.cache'", "zensical serve"]
+#
 
 [tasks."gen:init"]
 description = "Generate lazy-loading __init__.py files from __init__.pyi stubs"
-file = "https://raw.githubusercontent.com/liblaf/copier-python/refs/heads/main/mise-tasks/gen/init.py"
+file = "https://raw.githubusercontent.com/liblaf/copier-python/e899c06df1f308cf7b3accfd1e6ae76f42af36ea/mise-tasks/gen/init.py"
 
 [tasks."gen:ref-pages"]
 description = "Generate API reference pages from public Python modules"
-file = "https://raw.githubusercontent.com/liblaf/copier-python/refs/heads/main/mise-tasks/gen/ref-pages.py"
+file = "https://raw.githubusercontent.com/liblaf/copier-python/e899c06df1f308cf7b3accfd1e6ae76f42af36ea/mise-tasks/gen/ref-pages.py"
 
 [tasks.install]
 description = "Install project dependencies from pixi.lock or uv.lock"
-file = "https://raw.githubusercontent.com/liblaf/copier-python/refs/heads/main/mise-tasks/install.sh"
+file = "https://raw.githubusercontent.com/liblaf/copier-python/e899c06df1f308cf7b3accfd1e6ae76f42af36ea/mise-tasks/install.sh"
 
 [tasks.lint]
 description = "Run all linters"
@@ -36,12 +38,12 @@ depends = ["lint:python", "lint:toml"]
 
 [tasks."lint:python"]
 description = "Lint and format Python files"
-run = ["lint-imports", "ruff check --fix", "ruff format"]
+run = ["lint-imports", "ruff check --fix", "ruff format", "ty check --fix"]
 
 [tasks."lint:toml"]
 description = "Sort, format, and lint TOML files with toml-sort and tombi"
-file = "https://raw.githubusercontent.com/liblaf/copier-python/refs/heads/main/mise-tasks/lint/toml.sh"
+file = "https://raw.githubusercontent.com/liblaf/copier-python/e899c06df1f308cf7b3accfd1e6ae76f42af36ea/mise-tasks/lint/toml.sh"
 
 [tasks.upgrade]
 description = "Upgrade project dependencies from pixi.lock or uv.lock"
-file = "https://raw.githubusercontent.com/liblaf/copier-python/refs/heads/main/mise-tasks/upgrade.sh"
+file = "https://raw.githubusercontent.com/liblaf/copier-python/e899c06df1f308cf7b3accfd1e6ae76f42af36ea/mise-tasks/upgrade.sh"

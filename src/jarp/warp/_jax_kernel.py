@@ -105,7 +105,7 @@ def jax_kernel(
         return warp.jax_experimental.jax_kernel(kernel, **kwargs)
     return _FfiKernel(
         kernel=cast("wp.Kernel", kernel),
-        options=kwargs,  # ty:ignore[invalid-argument-type]
+        options=kwargs,
         arg_types_factory=arg_types_factory,
     )
 

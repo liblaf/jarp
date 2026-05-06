@@ -56,16 +56,13 @@ class DefineOptions(TypedDict, total=False):
     pytree: PyTreeType | Literal["data", "none", "static"] | bool | None
 
 
-# TODO: remove `kw_only` once <https://github.com/astral-sh/ty/issues/3115> is fixed
+@overload
+@dataclass_transform(field_specifiers=(attrs.field, array, auto, field, static))
+def define[T: type](cls: T, /, **kwargs: Unpack[DefineOptions]) -> T: ...
 @overload
 @dataclass_transform(field_specifiers=(attrs.field, array, auto, field, static))
 def define[T: type](
-    cls: T, /, *, kw_only: bool = False, **kwargs: Unpack[DefineOptions]
-) -> T: ...
-@overload
-@dataclass_transform(field_specifiers=(attrs.field, array, auto, field, static))
-def define[T: type](
-    cls: None = None, *, kw_only: bool = False, **kwargs: Unpack[DefineOptions]
+    cls: None = None, **kwargs: Unpack[DefineOptions]
 ) -> Callable[[T], T]: ...
 def define[T: type](maybe_cls: T | None = None, **kwargs: Any) -> Any:
     """Define an ``attrs`` class and optionally register it as a PyTree.
@@ -104,15 +101,13 @@ def define[T: type](maybe_cls: T | None = None, **kwargs: Any) -> Any:
 @dataclass_transform(
     frozen_default=True, field_specifiers=(attrs.field, array, auto, field, static)
 )
-def frozen[T: type](
-    cls: T, /, *, kw_only: bool = False, **kwargs: Unpack[DefineOptions]
-) -> T: ...
+def frozen[T: type](cls: T, /, **kwargs: Unpack[DefineOptions]) -> T: ...
 @overload
 @dataclass_transform(
     frozen_default=True, field_specifiers=(attrs.field, array, auto, field, static)
 )
 def frozen[T: type](
-    cls: None = None, /, *, kw_only: bool = False, **kwargs: Unpack[DefineOptions]
+    cls: None = None, /, **kwargs: Unpack[DefineOptions]
 ) -> Callable[[T], T]: ...
 def frozen[T: type](maybe_cls: T | None = None, **kwargs: Any) -> Any:
     """Define a frozen ``attrs`` class and register it as a data PyTree.
@@ -131,15 +126,13 @@ def frozen[T: type](maybe_cls: T | None = None, **kwargs: Any) -> Any:
 @dataclass_transform(
     frozen_default=True, field_specifiers=(attrs.field, array, auto, field, static)
 )
-def frozen_static[T: type](
-    cls: T, /, *, kw_only: bool = False, **kwargs: Unpack[DefineOptions]
-) -> T: ...
+def frozen_static[T: type](cls: T, /, **kwargs: Unpack[DefineOptions]) -> T: ...
 @overload
 @dataclass_transform(
     frozen_default=True, field_specifiers=(attrs.field, array, auto, field, static)
 )
 def frozen_static[T: type](
-    cls: None = None, /, *, kw_only: bool = False, **kwargs: Unpack[DefineOptions]
+    cls: None = None, /, **kwargs: Unpack[DefineOptions]
 ) -> Callable[[T], T]: ...
 def frozen_static[T: type](maybe_cls: T | None = None, **kwargs: Any) -> Any:
     """Define a frozen ``attrs`` class and register it as a static PyTree.
