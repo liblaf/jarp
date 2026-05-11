@@ -14,9 +14,9 @@
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/liblaf/jarp/main.svg)](https://results.pre-commit.ci/latest/github/liblaf/jarp/main)
 [![CodSpeed Badge](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://codspeed.io/liblaf/jarp)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/jarp?logo=PyPI&label=Downloads)](https://pypi.org/project/jarp)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/jarp?logo=Python&label=Python)](https://pypi.org/project/jarp)
-[![PyPI - Version](https://img.shields.io/pypi/v/jarp?logo=PyPI&label=PyPI)](https://pypi.org/project/jarp)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/liblaf-jarp?logo=PyPI&label=Downloads)](https://pypi.org/project/liblaf-jarp)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/liblaf-jarp?logo=Python&label=Python)](https://pypi.org/project/liblaf-jarp)
+[![PyPI - Version](https://img.shields.io/pypi/v/liblaf-jarp?logo=PyPI&label=PyPI)](https://pypi.org/project/liblaf-jarp)
 
 <!-- tangerine-end -->
 
@@ -26,9 +26,10 @@
 
 </div>
 
-`jarp` helps when JAX code mixes traceable arrays with ordinary Python
-metadata, and when the same program needs to cross into NVIDIA Warp. It
-packages a few focused tools around that boundary:
+`liblaf.jarp` helps when JAX code mixes traceable arrays with ordinary Python
+metadata, and when the same program needs to cross into NVIDIA Warp. It is
+usually imported as `from liblaf import jarp` and packages a few focused tools
+around that boundary:
 
 - `filter_jit` and `fallback_jit` wrap callables while partitioning arrays away
   from static metadata.
@@ -37,26 +38,26 @@ packages a few focused tools around that boundary:
 - `ravel` turns the dynamic leaves of a tree into one flat vector and returns a
   reusable `Structure` for round trips.
 - `jarp.lax` retries a small slice of `jax.lax` eagerly when JAX rejects
-  Python-only callback logic.
+  Python-only callback logic, while preserving the wrapped primitive metadata.
 - `to_warp`, `jarp.warp.jax_callable`, and `jarp.warp.jax_kernel` cover the
   common JAX-to-Warp interop paths.
 
 ## 📦 Installation
 
 > [!NOTE]
-> `jarp` requires Python 3.12 or newer.
+> `liblaf-jarp` requires Python 3.12 or newer.
 
 Install the published package with `uv`:
 
 ```bash
-uv add jarp
+uv add liblaf-jarp
 ```
 
 If you want a CUDA-enabled JAX extra, pick the matching wheel set:
 
 ```bash
-uv add 'jarp[cuda12]'
-uv add 'jarp[cuda13]'
+uv add 'liblaf-jarp[cuda12]'
+uv add 'liblaf-jarp[cuda13]'
 ```
 
 ## 🚀 Quick Start
@@ -66,7 +67,7 @@ once, then reuse the same split at the function boundary.
 
 ```python
 import jax.numpy as jnp
-import jarp
+from liblaf import jarp
 
 
 @jarp.define
@@ -94,7 +95,7 @@ into one vector and keep enough structure around to rebuild the tree later.
 
 ```python
 import jax.numpy as jnp
-import jarp
+from liblaf import jarp
 
 
 payload = {"a": jnp.zeros((3,)), "b": jnp.ones((4,)), "static": "foo"}
@@ -109,7 +110,7 @@ vector and matrix dtypes from trailing dimensions:
 from typing import Any
 
 import jax.numpy as jnp
-import jarp
+from liblaf import jarp
 
 
 arr_wp = jarp.to_warp(jnp.zeros((5, 3), jnp.float32), (-1, Any))
@@ -117,12 +118,14 @@ arr_wp = jarp.to_warp(jnp.zeros((5, 3), jnp.float32), (-1, Any))
 
 When JAX control-flow primitives reject Python-only callback logic,
 `jarp.lax.cond`, `switch`, `fori_loop`, and `while_loop` try the corresponding
-`jax.lax` primitive first and then rerun eagerly after selected JAX tracing or
-indexing errors.
+`jax.lax` primitive first. If that call raises one of the selected JAX tracing
+or indexing errors, the wrapper logs the error, caches the failed metadata
+signature, and reruns the fallback eagerly.
 
 For broader PyTree traversal helpers, see `jarp.PyTreeProxy`,
 `jarp.partial`, `jarp.tree.register_generic`, and the lower-level
-`jarp.tree.codegen` module.
+`jarp.tree.codegen` module. Importing `jarp.tree` also registers the built-in
+PyTree adapters for bound methods and `warp.array`.
 
 ## 🛠️ Local Development
 
@@ -150,7 +153,7 @@ uv run zensical build
 - [Call wrappers guide](docs/guides/call-wrappers.md)
 - [PyTree workflows](docs/guides/pytree-workflows.md)
 - [Warp interop guide](docs/guides/warp.md)
-- [API reference map](docs/reference/README.md)
+- [API reference](docs/reference/liblaf/jarp/README.md)
 
 ## 🤝 Contributing
 
@@ -165,7 +168,7 @@ Warp integration, and edge cases that show up in real JAX code.
 
 - [Documentation](https://liblaf.github.io/jarp/)
 - [Changelog](https://github.com/liblaf/jarp/blob/main/CHANGELOG.md)
-- [PyPI](https://pypi.org/project/jarp)
+- [PyPI](https://pypi.org/project/liblaf-jarp)
 - [Issues](https://github.com/liblaf/jarp/issues)
 
 ---

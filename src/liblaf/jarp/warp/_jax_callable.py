@@ -1,0 +1,120 @@
+import functools
+from collections.abc import Callable, Iterable, Sequence
+from typing import Any, Literal, Protocol, TypedDict, Unpack, overload
+
+import jax.tree_util as jtu
+import warp.jax_experimental
+from jax import Array
+from warp._src.jax_experimental.ffi import FfiCallable as _WarpFfiCallable
+from warp._src.jax_experimental.ffi import ModulePreloadMode
+from warp.jax_experimental import GraphMode
+
+from liblaf.jarp import tree
+
+from ._types import ShapeLike, VmapMethod, WarpScalarDType
+from ._utils import dtypes_from_args
+
+type _FfiCallableFunction = Callable[..., None]
+type _FfiCallableFactory = Callable[..., _FfiCallableFunction]
+
+
+class JaxCallableOptions(TypedDict, total=False):
+    num_outputs: int
+    graph_mode: GraphMode
+    vmap_method: VmapMethod | None
+    output_dims: dict[str, ShapeLike] | None  # Mapping won't work with Warp
+    in_out_argnames: Iterable[str]
+    stage_in_argnames: Iterable[str]
+    stage_out_argnames: Iterable[str]
+    graph_cache_max: int | None
+    module_preload_mode: ModulePreloadMode
+    has_side_effect: bool
+
+
+class JaxCallableCallOptions(TypedDict, total=False):
+    output_dims: ShapeLike | dict[str, ShapeLike] | None  # Mapping won't work with Warp
+    vmap_method: VmapMethod | None
+
+
+class FfiCallableProtocol(Protocol):
+    """Callable interface returned by [`jax_callable`][liblaf.jarp.warp.jax_callable]."""
+
+    def __call__(
+        self, *args: Array, **kwargs: Unpack[JaxCallableCallOptions]
+    ) -> Sequence[Array]: ...
+
+
+@tree.frozen_static
+class _FfiCallable(FfiCallableProtocol):
+    """Rebuild a generic Warp callable from the runtime JAX dtypes."""
+
+    factory: _FfiCallableFactory
+    options: JaxCallableOptions
+
+    def __call__(
+        self, *args: Array, **kwargs: Unpack[JaxCallableCallOptions]
+    ) -> Sequence[Array]:
+        warp_dtypes: list[WarpScalarDType] = dtypes_from_args(*args)
+        func: _FfiCallableFunction = self.factory(*warp_dtypes)
+        jax_callable: Callable[..., Sequence[Array]] = (
+            warp.jax_experimental.jax_callable(func, **self.options)
+        )
+        return jax_callable(*args, **kwargs)
+
+
+@overload
+def jax_callable(
+    func: _FfiCallableFunction,
+    *,
+    generic: Literal[False] = False,
+    **kwargs: Unpack[JaxCallableOptions],
+) -> FfiCallableProtocol: ...
+@overload
+def jax_callable(
+    *, generic: Literal[False] = False, **kwargs: Unpack[JaxCallableOptions]
+) -> Callable[[_FfiCallableFunction], FfiCallableProtocol]: ...
+@overload
+def jax_callable(
+    func: _FfiCallableFactory,
+    *,
+    generic: Literal[True],
+    **kwargs: Unpack[JaxCallableOptions],
+) -> _FfiCallable: ...
+@overload
+def jax_callable(
+    *, generic: Literal[True], **kwargs: Unpack[JaxCallableOptions]
+) -> Callable[[_FfiCallableFactory], _FfiCallable]: ...
+def jax_callable(
+    func: Callable | None = None,
+    *,
+    generic: bool = False,
+    **kwargs: Unpack[JaxCallableOptions],
+) -> Any:
+    """Wrap `warp.jax_experimental.jax_callable` with optional dtype dispatch.
+
+    When `generic=True`, `func` is treated as a factory keyed by the Warp
+    scalar dtypes inferred from the runtime JAX arguments. The factory output is
+    cached, so repeated calls with the same dtype signature reuse the same Warp
+    callable.
+
+    Args:
+        func: Warp callable function or factory. When omitted, return a
+            decorator.
+        generic: When true, `func` is treated as a factory that receives Warp
+            scalar dtypes inferred from the runtime JAX arguments and returns a
+            concrete Warp callable implementation.
+        **kwargs: Options forwarded to Warp's JAX callable adapter.
+
+    Returns:
+        A callable compatible with JAX tracing, or a decorator producing one.
+        The callable returns the output arrays produced by Warp's FFI wrapper.
+    """
+    if func is None:
+        return functools.partial(jax_callable, generic=generic, **kwargs)
+    if not generic:
+        return warp.jax_experimental.jax_callable(func, **kwargs)
+    factory: _FfiCallableFactory = functools.lru_cache(func)
+    return _FfiCallable(factory=factory, options=kwargs)
+
+
+jtu.register_static(_WarpFfiCallable)

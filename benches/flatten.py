@@ -9,7 +9,7 @@ import jax.numpy as jnp
 import jax.tree_util as jtu
 from jax import Array
 
-import jarp
+from liblaf import jarp
 
 
 @jtu.register_dataclass

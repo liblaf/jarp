@@ -2,8 +2,8 @@
 
 This benchmark compares the steady-state invocation overhead around a no-op
 function after warmup. `jax.jit` and `equinox.filter_jit` measure compiled call
-overhead. `jarp.filter_jit` measures the cost of partitioning mixed inputs and
-recombining outputs on the same callable shape.
+overhead. `liblaf.jarp.filter_jit` measures the cost of partitioning mixed
+inputs and recombining outputs on the same callable shape.
 
 [Source Code](https://github.com/liblaf/jarp/blob/main/benches/jit.py)
 
@@ -42,6 +42,6 @@ higher.
 ```text
 python==3.14.2
 jax==0.9.0
-jarp==0.1.0
+liblaf-jarp==0.1.0
 equinox==0.13.2
 ```

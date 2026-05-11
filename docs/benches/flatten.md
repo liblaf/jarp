@@ -35,6 +35,6 @@ This benchmark measures the flatten and unflatten performance of custom PyTree n
 ```text
 python==3.14.2
 jax==0.9.0
-jarp==0.1.0
+liblaf-jarp==0.1.0
 equinox==0.13.2
 ```

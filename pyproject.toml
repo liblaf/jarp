@@ -2,7 +2,7 @@
 # ref: <https://packaging.python.org/en/latest/specifications/pyproject-toml/>
 
 [project]
-name = "jarp"
+name = "liblaf-jarp"
 description = "PyTree helpers and Warp adapters for JAX code, with mixed data/metadata partitioning and array-to-Warp conversion."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -27,12 +27,11 @@ classifiers = [
 ]
 dependencies = [
   "attrs>=25",
-  "cachetools>=7.1.1",
   "fieldz>=0.1",
-  "jax>=0.9",
+  "jax>=0.10",
   "jaxtyping>=0.3",
   "lazy-loader>=0.1",
-  "warp-lang>=1.12",
+  "warp-lang>=1.13",
   "wrapt>=2"
 ]
 dynamic = ["version"]
@@ -48,8 +47,8 @@ dynamic = ["version"]
 "Source Code" = "https://github.com/liblaf/jarp"
 
 [project.optional-dependencies]
-cuda12 = ["jax[cuda12]>=0.9"]
-cuda13 = ["jax[cuda13]>=0.9"]
+cuda12 = ["jax[cuda12]>=0.10"]
+cuda13 = ["jax[cuda13]>=0.10"]
 
 [dependency-groups]
 dev = ["equinox>=0.13"]
@@ -60,7 +59,7 @@ docs = [
   "griffe-pydantic>=1",
   "griffe-warnings-deprecated>=1",
   "mkdocstrings[python]>=1",
-  "zensical>=0.0.30"
+  "zensical>=0.0.41"
 ]
 lint = ["import-linter[ui]>=2", "ruff>=0.15"]
 nox = ["liblaf-nox-recipes>=0.1", "nox>=2026", "nox-uv>=0.7"]
@@ -84,22 +83,22 @@ branch = true
 source = ["src"]
 
 [tool.hatch.build.hooks.vcs]
-version-file = "src/jarp/_version.py"
+version-file = "src/liblaf/jarp/_version.py"
 
 [tool.hatch.build.targets.sdist]
 only-include = ["src"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/jarp"]
+packages = ["src/liblaf"]
 
 [tool.hatch.version]
 source = "vcs"
 
 [tool.importlinter]
-root_package = "jarp"
+root_package = "liblaf.jarp"
 
 [[tool.importlinter.contracts]]
-ancestors = ["jarp"]
+ancestors = ["liblaf.jarp"]
 name = "Acyclic siblings"
 type = "acyclic_siblings"
 

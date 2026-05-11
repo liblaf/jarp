@@ -6,7 +6,7 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 
-import jarp
+from liblaf import jarp
 
 # jax.config.update("jax_platforms", "cpu")
 

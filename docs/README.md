@@ -1,14 +1,14 @@
-# jarp
+# liblaf.jarp
 
-`jarp` keeps mixed JAX PyTrees usable across function boundaries, `attrs`, and
-NVIDIA Warp. The package is intentionally small: it focuses on filtered call
-wrappers, PyTree-friendly class definitions, round-trippable flattening, a
-handful of control-flow wrappers, and Warp adapters that fit JAX-first
-workflows.
+`liblaf.jarp` keeps mixed JAX PyTrees usable across function boundaries,
+`attrs`, and NVIDIA Warp. The package is intentionally small: it focuses on
+filtered call wrappers, PyTree-friendly class definitions, round-trippable
+flattening, a handful of control-flow wrappers, and Warp adapters that fit
+JAX-first workflows.
 
 ```python
 import jax.numpy as jnp
-import jarp
+from liblaf import jarp
 
 
 @jarp.define
@@ -28,12 +28,13 @@ def normalize(batch: Batch) -> Batch:
 - [Getting started](guides/getting-started.md) for installation, the core field
   specifiers, and the first filtered call wrapper.
 - [Call wrappers](guides/call-wrappers.md) for `filter_jit`,
-  `fallback_jit`, and the `jarp.lax` helpers.
+  `fallback_jit`, `LaxWrapper`, and the `jarp.lax` helpers.
 - [PyTree workflows](guides/pytree-workflows.md) for `define`, `auto`,
-  `ravel`, `PyTreeProxy`, and custom registration helpers.
+  `ravel`, `PyTreeProxy`, import-time prelude registrations, and custom
+  registration helpers.
 - [Warp interop](guides/warp.md) for `to_warp`, generic Warp adapters, and
   dtype helpers.
-- [API reference](reference/README.md) for exact signatures and module-level
-  details.
+- [API reference](reference/liblaf/jarp/README.md) for exact signatures and
+  module-level details.
 - [Benchmarks](benches/jit.md) for the current wrapper-overhead and PyTree
   registration measurements.

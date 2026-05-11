@@ -2,7 +2,7 @@
 
 [project]
 # Basics
-site_name = "Jarp"
+site_name = "liblaf.jarp"
 site_url = "__SITE_URL__"
 site_description = "PyTree helpers and Warp adapters for JAX code, with mixed data/metadata partitioning and array-to-Warp conversion."
 site_author = "liblaf"
@@ -17,18 +17,17 @@ nav = [
   ] },
   { "API Reference" = [
     { "<code class=\"doc-symbol doc-symbol-toc doc-symbol-module\"></code> jarp" = [
-      "reference/jarp/README.md",
-      "reference/jarp/lax/README.md",
-      { "<code class=\"doc-symbol doc-symbol-toc doc-symbol-module\"></code> jarp.tree" = [
-        "reference/jarp/tree/README.md",
-        "reference/jarp/tree/attrs/README.md",
-        "reference/jarp/tree/codegen/README.md",
-        "reference/jarp/tree/prelude/README.md"
+      "reference/liblaf/jarp/README.md",
+      "reference/liblaf/jarp/lax/README.md",
+      { "<code class=\"doc-symbol doc-symbol-toc doc-symbol-module\"></code> tree" = [
+        "reference/liblaf/jarp/tree/README.md",
+        "reference/liblaf/jarp/tree/attrs/README.md",
+        "reference/liblaf/jarp/tree/codegen/README.md",
+        "reference/liblaf/jarp/tree/prelude/README.md"
       ] },
-      "reference/jarp/utils/README.md",
-      { "<code class=\"doc-symbol doc-symbol-toc doc-symbol-module\"></code> jarp.warp" = [
-        "reference/jarp/warp/README.md",
-        "reference/jarp/warp/types.md"
+      { "<code class=\"doc-symbol doc-symbol-toc doc-symbol-module\"></code> warp" = [
+        "reference/liblaf/jarp/warp/README.md",
+        "reference/liblaf/jarp/warp/types.md"
       ] }
     ] }
   ] },
@@ -107,7 +106,6 @@ enable_inventory = true
 inventories = [
   "https://docs.jax.dev/en/latest/objects.inv",
   "https://docs.python.org/3/objects.inv",
-  "https://nvidia.github.io/warp/objects.inv",
   "https://www.attrs.org/en/stable/objects.inv"
 ]
 
