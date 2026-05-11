@@ -7,6 +7,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog-config-spec/blob/master/versions/2.2.0/README.md),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.2.0](https://github.com/liblaf/jarp/releases/tag/v0.2.0) - 2026-05-11
+
+### 💥 BREAKING CHANGES
+
+- **(jit)** `jarp.jit` is no longer exported; use `jarp.filter_jit` for partitioned calls and `jarp.fallback_jit` when metadata-dependent inputs need a cached Python fallback. - [350b08f](https://github.com/liblaf/jarp/commit/350b08f386bc71e404ca29a7ef0192fed7198a47) by [@liblaf](https://github.com/liblaf)
+- **(liblaf.jarp)** the import path changes from `jarp` to `liblaf.jarp`. - [cd16226](https://github.com/liblaf/jarp/commit/cd16226449a794fcc84bff9f124a4e833b808f8c) by [@liblaf](https://github.com/liblaf)
+
+### ✨ Features
+
+- **(jit)** **\[breaking\]** add filter and fallback call wrappers - [350b08f](https://github.com/liblaf/jarp/commit/350b08f386bc71e404ca29a7ef0192fed7198a47) by [@liblaf](https://github.com/liblaf)
+- **(lax)** add eager control-flow wrappers and docs - [142e878](https://github.com/liblaf/jarp/commit/142e87872ed166e2daf600317e0a656f17fa044b) by [@liblaf](https://github.com/liblaf)
+- **(lax)** add first_true_index for ordered condition indexing - [5426e22](https://github.com/liblaf/jarp/commit/5426e22ae63573afffce08f2363e7c8ac26c7df6) by [@liblaf](https://github.com/liblaf)
+- **(warp)** add dtype-aware struct decorator for Warp structs - [e40917b](https://github.com/liblaf/jarp/commit/e40917bf90985cd7d31da44ac2e7c2d9720718bf) by [@liblaf](https://github.com/liblaf)
+
+### 📝 Documentation
+
+- expand package docs and inline API docstrings - [f3a7377](https://github.com/liblaf/jarp/commit/f3a73770e9a96c2306e4e14b48eccfa2dd90b5f5) by [@liblaf](https://github.com/liblaf)
+
+### ♻️ Code Refactoring
+
+- **(liblaf.jarp)** **\[breaking\]** rename package under liblaf namespace and consolidate api - [cd16226](https://github.com/liblaf/jarp/commit/cd16226449a794fcc84bff9f124a4e833b808f8c) by [@liblaf](https://github.com/liblaf)
+
+### ❤️ Contributors
+
+- [@liblaf](https://github.com/liblaf)
+- [@renovate[bot]](https://github.com/apps/renovate)
+- [@liblaf-copier[bot]](https://github.com/apps/liblaf-copier) made their first contribution in [#33](https://github.com/liblaf/jarp/pull/33)
+
 ## [v0.1.9](https://github.com/liblaf/jarp/releases/tag/v0.1.9) - 2026-03-31
 
 ### 🛠 Builds
@@ -19,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ❤️ Contributors
 
+- [@liblaf-release-please[bot]](https://github.com/apps/liblaf-release-please) made their first contribution in [#30](https://github.com/liblaf/jarp/pull/30)
 - [@liblaf](https://github.com/liblaf)
 - [@renovate[bot]](https://github.com/apps/renovate)
 
