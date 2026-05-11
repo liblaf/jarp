@@ -16,9 +16,19 @@ class LaxWrapper[**P, T]:
 
     `LaxWrapper` powers the public helpers in
     [`liblaf.jarp.lax`][liblaf.jarp.lax]. It preserves wrapper metadata from
-    the wrapped JAX primitive, tries that primitive on each new call shape, and
-    records metadata signatures that should skip directly to the Python
-    fallback after a supported JAX error.
+    the wrapped JAX primitive when that metadata exists, tries that primitive
+    on each new call shape, and records metadata signatures that should skip
+    directly to the Python fallback after a supported JAX error. Callable
+    objects without ordinary function metadata are accepted.
+
+    Examples:
+        >>> from liblaf.jarp.lax import LaxWrapper
+        >>> class Wrapped:
+        ...     def __call__(self, value):
+        ...         return value + 1
+        >>> wrapper = LaxWrapper(Wrapped(), lambda value: value - 1)
+        >>> wrapper(2)
+        3
 
     Attributes:
         __wrapped__: JAX callable attempted before the fallback.

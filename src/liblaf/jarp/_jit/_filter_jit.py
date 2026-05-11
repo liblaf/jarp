@@ -89,11 +89,20 @@ def filter_jit[F: Callable[..., Any]](
     JAX arrays on the dynamic side of the partition while preserving ordinary
     Python metadata such as strings, bound methods, or configuration objects.
 
+    Examples:
+        >>> import jax.numpy as jnp
+        >>> from liblaf import jarp
+        >>> @jarp.filter_jit
+        ... def scale(value, *, label):
+        ...     assert label == "active"
+        ...     return value * 2
+        >>> scale(jnp.array([1, 2]), label="active").tolist()
+        [2, 4]
+
     Args:
         fun: Callable to wrap. When omitted, return a configured decorator.
-        **kwargs: Reserved compatibility options for a `jax.jit`-like
-            surface. The current implementation accepts these names but does
-            not use them directly.
+        **kwargs: Options forwarded to [`jax.jit`][jax.jit] for the inner
+            filtered callable.
 
     Returns:
         The wrapped callable, or a decorator that produces one.

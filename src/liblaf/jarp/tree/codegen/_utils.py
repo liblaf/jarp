@@ -61,16 +61,11 @@ def codegen_object_setattr(name: str, value: expr) -> Expr:
 
 
 def codegen_partition(auto_fields: Sequence[str]) -> list[stmt]:
-    """.
+    """Build AST statements that split auto fields into data and metadata.
 
-    ```python
-    _a_auto = obj.a
-    _b_auto = obj.b
-    ...
-    _a_data, _a_meta = (_a_auto, None) if _filter_spec(_a_auto) else (None, _a_auto)
-    _b_data, _b_meta = (_b_auto, None) if _filter_spec(_b_auto) else (None, _b_auto)
-    ...
-    ```
+    Each generated statement first reads `obj.<field>`, then stores the value
+    in the generated data slot when `_filter_spec(value)` is true or in the
+    metadata slot otherwise.
     """
     body: list[stmt] = [
         # _name_auto = obj.name

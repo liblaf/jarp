@@ -86,6 +86,21 @@ def test_ravel_rebuilds_static_leaf() -> None:
     assert structure.unravel(flat) == "static"
 
 
+def test_ravel_rebuilds_dynamic_array_leaf() -> None:
+    flat, structure = tree.ravel(jnp.array([[1, 2], [3, 4]], dtype=jnp.float32))
+
+    assert structure.is_leaf
+    assert structure.shapes == ((2, 2),)
+    assert flat.tolist() == [1.0, 2.0, 3.0, 4.0]
+
+    rebuilt = structure.unravel(jnp.array([5, 6, 7, 8], dtype=jnp.float32))
+    assert rebuilt.tolist() == [[5.0, 6.0], [7.0, 8.0]]
+    assert structure.ravel(jnp.array([9, 10], dtype=jnp.float32)).tolist() == [
+        9.0,
+        10.0,
+    ]
+
+
 def test_auto_fields_move_between_metadata_and_data_by_value() -> None:
     @tree.frozen
     class Box:
@@ -227,6 +242,30 @@ def test_partial_splits_wrapped_callable_from_bound_arguments() -> None:
     assert rebuilt().tolist() == [8, 15]
 
 
+def test_partial_reports_key_paths_for_bound_arguments_and_callable_data() -> None:
+    @tree.frozen
+    class Scale:
+        factor: Array
+
+        def __call__(self, value: Array, *, label: str) -> Array:
+            assert label == "active"
+            return value * self.factor
+
+    partial = tree.partial(Scale(jnp.array([2, 3])), jnp.array([4, 5]), label="active")
+
+    keyed_leaves, _treedef = jtu.tree_flatten_with_path(partial)
+
+    assert keyed_leaves[0][0][0].name == "_self_args"
+    assert keyed_leaves[0][0][1].idx == 0
+    assert keyed_leaves[0][1].tolist() == [4, 5]
+    assert keyed_leaves[1][0][0].name == "_self_kwargs"
+    assert keyed_leaves[1][0][1].key == "label"
+    assert keyed_leaves[1][1] == "active"
+    assert keyed_leaves[2][0][0].name == "__wrapped__"
+    assert keyed_leaves[2][0][1].name == "factor"
+    assert keyed_leaves[2][1].tolist() == [2, 3]
+
+
 def test_prelude_pytrees_are_registered_by_importing_tree() -> None:
     @tree.frozen
     class Scale:
@@ -243,3 +282,21 @@ def test_prelude_pytrees_are_registered_by_importing_tree() -> None:
     rebuilt = jax.tree.unflatten(treedef, leaves)
     assert rebuilt(jnp.array([3, 4])).tolist() == [4, 6]
     assert jtu.is_tree_node(wp.array)
+
+
+def test_bound_methods_report_key_paths_for_self_data() -> None:
+    @tree.frozen
+    class Scale:
+        offset: Array
+
+        def add(self, value: Array) -> Array:
+            return value + self.offset
+
+    method = Scale(jnp.array([1, 2])).add
+
+    keyed_leaves, _treedef = jtu.tree_flatten_with_path(method)
+
+    assert len(keyed_leaves) == 1
+    assert keyed_leaves[0][0][0].name == "__self__"
+    assert keyed_leaves[0][0][1].name == "offset"
+    assert keyed_leaves[0][1].tolist() == [1, 2]

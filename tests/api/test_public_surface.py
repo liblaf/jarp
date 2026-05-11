@@ -18,6 +18,7 @@ def test_top_level_exports_cover_the_runtime_public_surface() -> None:
         "lax",
         "ravel",
         "switch",
+        "struct",
         "to_warp",
         "tree",
         "warp",
@@ -44,7 +45,9 @@ def test_submodule_exports_are_discoverable() -> None:
     assert set(jit_module.__all__) == {"fallback_jit", "filter_jit"}
     assert {"register_fieldz", "register_generic"} <= set(jarp.tree.__all__)
     assert "register_pytree_prelude" not in jarp.tree.__all__
-    assert {"jax_callable", "jax_kernel", "to_warp", "types"} <= set(jarp.warp.__all__)
+    assert {"jax_callable", "jax_kernel", "struct", "to_warp", "types"} <= set(
+        jarp.warp.__all__
+    )
 
 
 def test_removed_utils_module_is_not_importable() -> None:

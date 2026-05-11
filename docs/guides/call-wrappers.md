@@ -65,3 +65,7 @@ The public `jarp.lax` helpers are `LaxWrapper` instances. They keep the wrapped
 `jax.lax` primitive available through `__wrapped__`, preserve the primitive
 signature for inspection, and cache metadata signatures that should skip
 directly to the Python fallback after a supported failure.
+
+`LaxWrapper` copies ordinary function metadata when it is available, but it
+does not require it. Callable objects with only `__call__` still work as the
+wrapped JAX-side callable.

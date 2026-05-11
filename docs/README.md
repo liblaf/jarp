@@ -3,8 +3,8 @@
 `liblaf.jarp` keeps mixed JAX PyTrees usable across function boundaries,
 `attrs`, and NVIDIA Warp. The package is intentionally small: it focuses on
 filtered call wrappers, PyTree-friendly class definitions, round-trippable
-flattening, a handful of control-flow wrappers, and Warp adapters that fit
-JAX-first workflows.
+flattening, a handful of control-flow wrappers, and Warp array, callable, and
+struct adapters that fit JAX-first workflows.
 
 ```python
 import jax.numpy as jnp
@@ -32,8 +32,8 @@ def normalize(batch: Batch) -> Batch:
 - [PyTree workflows](guides/pytree-workflows.md) for `define`, `auto`,
   `ravel`, `PyTreeProxy`, import-time prelude registrations, and custom
   registration helpers.
-- [Warp interop](guides/warp.md) for `to_warp`, generic Warp adapters, and
-  dtype helpers.
+- [Warp interop](guides/warp.md) for `to_warp`, `struct`, generic Warp
+  adapters, and dtype helpers.
 - [API reference](reference/liblaf/jarp/README.md) for exact signatures and
   module-level details.
 - [Benchmarks](benches/jit.md) for the current wrapper-overhead and PyTree

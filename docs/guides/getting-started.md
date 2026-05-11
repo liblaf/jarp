@@ -65,7 +65,9 @@ round_trip = structure.unravel(flat)
 static leaves, and reshape offsets needed to rebuild compatible values later.
 
 If you already have a compatible tree, `Structure.ravel` can flatten it again
-and `Structure.unravel` will accept an already-matching tree unchanged.
+and `Structure.unravel` will accept an already-matching tree unchanged. If the
+recorded value was itself a JAX array, `Structure.unravel` reshapes a flat
+vector back to that array shape.
 
 ## Retry Selected Control-Flow Errors Eagerly
 
@@ -93,7 +95,7 @@ continue with [Call wrappers](call-wrappers.md).
   `fallback_jit`, and `jarp.lax`.
 - Read [PyTree workflows](pytree-workflows.md) for `auto`, `PyTreeProxy`, and
   custom registration helpers.
-- Read [Warp interop](warp.md) for `to_warp`, `jax_callable`, and
+- Read [Warp interop](warp.md) for `to_warp`, `struct`, `jax_callable`, and
   `jax_kernel`.
 - Use the [API reference](../reference/liblaf/jarp/README.md) when you need exact
   signatures.
