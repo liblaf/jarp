@@ -2,7 +2,8 @@
 
 The top-level package re-exports the filtered call wrappers
 [`filter_jit`][liblaf.jarp.filter_jit] and
-[`fallback_jit`][liblaf.jarp.fallback_jit], the most common helpers from
+[`fallback_jit`][liblaf.jarp.fallback_jit], selected
+[`liblaf.jarp.lax`][liblaf.jarp.lax] helpers, the most common helpers from
 [liblaf.jarp.tree][], and Warp integration utilities such as
 [`to_warp`][liblaf.jarp.to_warp], [`struct`][liblaf.jarp.struct],
 [`jax_callable`][liblaf.jarp.jax_callable], and

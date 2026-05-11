@@ -59,6 +59,26 @@ state = jarp.lax.while_loop(
 On the eager fallback path, `jarp.lax.switch` clamps the branch index into
 range before dispatch.
 
+## Collapse Ordered Conditions To An Index
+
+`first_true_index` turns an ordered list of scalar or array conditions into a
+JAX integer array. It returns the first matching condition index at each
+position, and uses `len(condlist)` where no condition matches.
+
+```python
+import jax.numpy as jnp
+from liblaf import jarp
+
+
+labels = jarp.first_true_index(
+    [
+        jnp.array([False, True, False, False]),
+        jnp.array([True, True, False, False]),
+        jnp.array([True, False, True, False]),
+    ]
+)
+```
+
 ## Preserve Primitive Metadata
 
 The public `jarp.lax` helpers are `LaxWrapper` instances. They keep the wrapped

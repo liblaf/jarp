@@ -3,8 +3,8 @@
 `liblaf.jarp` keeps mixed JAX PyTrees usable across function boundaries,
 `attrs`, and NVIDIA Warp. The package is intentionally small: it focuses on
 filtered call wrappers, PyTree-friendly class definitions, round-trippable
-flattening, a handful of control-flow wrappers, and Warp array, callable, and
-struct adapters that fit JAX-first workflows.
+flattening, control-flow and ordered-condition helpers, and Warp array,
+callable, and struct adapters that fit JAX-first workflows.
 
 ```python
 import jax.numpy as jnp

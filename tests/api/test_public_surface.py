@@ -14,6 +14,7 @@ def test_top_level_exports_cover_the_runtime_public_surface() -> None:
         "cond",
         "fallback_jit",
         "filter_jit",
+        "first_true_index",
         "fori_loop",
         "lax",
         "ravel",
@@ -29,6 +30,7 @@ def test_top_level_exports_cover_the_runtime_public_surface() -> None:
     assert "utils" not in jarp.__all__
     assert callable(jarp.filter_jit)
     assert callable(jarp.fallback_jit)
+    assert callable(jarp.first_true_index)
     assert callable(jarp.ravel)
     assert callable(jarp.to_warp)
 
@@ -37,6 +39,7 @@ def test_submodule_exports_are_discoverable() -> None:
     assert set(jarp.lax.__all__) == {
         "LaxWrapper",
         "cond",
+        "first_true_index",
         "fori_loop",
         "lax_wrapper",
         "switch",

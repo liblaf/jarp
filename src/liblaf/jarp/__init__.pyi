@@ -1,7 +1,7 @@
 from . import lax, tree, warp
 from ._jit import fallback_jit, filter_jit
 from ._version import __commit_id__, __version__, __version_tuple__
-from .lax import cond, fori_loop, switch, while_loop
+from .lax import cond, first_true_index, fori_loop, switch, while_loop
 from .tree import (
     Partial,
     PyTreeProxy,
@@ -32,6 +32,7 @@ __all__ = [
     "fallback_jit",
     "field",
     "filter_jit",
+    "first_true_index",
     "fori_loop",
     "frozen",
     "frozen_static",

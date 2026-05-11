@@ -73,7 +73,9 @@ vector back to that array shape.
 
 `jarp.lax` tries `jax.lax` first and reruns the same callbacks in
 plain Python when JAX raises the selected tracing or indexing errors that the
-wrappers know how to recover from.
+wrappers know how to recover from. The same namespace also provides
+`first_true_index` for turning ordered scalar or array conditions into integer
+labels.
 
 ```python
 from liblaf import jarp

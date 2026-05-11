@@ -17,6 +17,7 @@ useGitignore: true
 words:
   - arithmatex
   - asarray
+  - condlist
   - cuda
   - dtype
   - dtypes
@@ -27,6 +28,7 @@ words:
   - inlinehilite
   - jarp
   - jaxtyping
+  - kwargs
   - kwonlyargs
   - liblaf
   - linenums
