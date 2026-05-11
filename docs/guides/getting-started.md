@@ -93,7 +93,7 @@ continue with [Call wrappers](call-wrappers.md).
   `fallback_jit`, and `jarp.lax`.
 - Read [PyTree workflows](pytree-workflows.md) for `auto`, `PyTreeProxy`, and
   custom registration helpers.
-- Read [Warp interop](warp.md) for `to_warp`, `jax_callable`, and
+- Read [Warp interop](warp.md) for `to_warp`, `struct`, `jax_callable`, and
   `jax_kernel`.
 - Use the [API reference](../reference/liblaf/jarp/README.md) when you need exact
   signatures.

@@ -39,8 +39,8 @@ around that boundary:
   reusable `Structure` for round trips.
 - `jarp.lax` retries a small slice of `jax.lax` eagerly when JAX rejects
   Python-only callback logic, while preserving the wrapped primitive metadata.
-- `to_warp`, `jarp.warp.jax_callable`, and `jarp.warp.jax_kernel` cover the
-  common JAX-to-Warp interop paths.
+- `to_warp`, `jarp.struct`, `jarp.warp.jax_callable`, and
+  `jarp.warp.jax_kernel` cover the common JAX-to-Warp interop paths.
 
 ## 📦 Installation
 
@@ -115,6 +115,33 @@ from liblaf import jarp
 
 arr_wp = jarp.to_warp(jnp.zeros((5, 3), jnp.float32), (-1, Any))
 ```
+
+For Warp structs whose field dtypes should follow the surrounding JAX precision
+mode, `jarp.struct` can specialize annotations from a small factory:
+
+```python
+from typing import Any
+
+import warp as wp
+from liblaf import jarp
+
+
+@jarp.struct
+class Particle[T]:
+    @classmethod
+    def __annotations_factory__(cls, dtype: Any) -> dict[str, Any]:
+        return {
+            "position": wp.array1d(dtype=wp.types.vector(3, dtype)),
+            "mass": wp.array1d(dtype=dtype),
+        }
+
+
+particles64 = Particle[wp.float64]()
+particles_default = Particle()
+```
+
+`Particle()` uses `jarp.warp.types.floating`, so it follows JAX's active
+`jax_enable_x64` setting.
 
 When JAX control-flow primitives reject Python-only callback logic,
 `jarp.lax.cond`, `switch`, `fori_loop`, and `while_loop` try the corresponding

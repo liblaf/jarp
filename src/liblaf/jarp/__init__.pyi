@@ -16,7 +16,7 @@ from .tree import (
     ravel,
     static,
 )
-from .warp import jax_callable, jax_kernel, to_warp
+from .warp import jax_callable, jax_kernel, struct, to_warp
 
 __all__ = [
     "Partial",
@@ -41,6 +41,7 @@ __all__ = [
     "partial",
     "ravel",
     "static",
+    "struct",
     "switch",
     "to_warp",
     "tree",

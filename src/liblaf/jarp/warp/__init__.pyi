@@ -11,6 +11,7 @@ from ._jax_kernel import (
     JaxKernelOptions,
     jax_kernel,
 )
+from ._struct import struct
 from ._to_warp import to_warp
 
 __all__ = [
@@ -22,6 +23,7 @@ __all__ = [
     "JaxKernelOptions",
     "jax_callable",
     "jax_kernel",
+    "struct",
     "to_warp",
     "types",
 ]

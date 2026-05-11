@@ -3,7 +3,7 @@
 
 [project]
 name = "liblaf-jarp"
-description = "PyTree helpers and Warp adapters for JAX code, with mixed data/metadata partitioning and array-to-Warp conversion."
+description = "PyTree helpers and Warp interop for JAX code, with mixed data/metadata partitioning, array conversion, and dtype-aware Warp structs."
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"

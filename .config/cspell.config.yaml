@@ -22,7 +22,6 @@ words:
   - dtypes
   - fieldz
   - fori
-  - frozenish
   - grimp
   - hynek
   - inlinehilite
@@ -50,6 +49,7 @@ words:
   - pyplot
   - pytest
   - pytree
+  - pytrees
   - pyvista
   - rumdl
   - sdist

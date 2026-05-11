@@ -2,7 +2,7 @@
 
 `liblaf.jarp.warp` covers the boundary between JAX or NumPy arrays and NVIDIA
 Warp. The simple case is array conversion. The more advanced case is rebuilding
-Warp callables and kernel overloads from the runtime JAX dtypes.
+Warp structs, callables, and kernel overloads from the runtime JAX dtypes.
 
 ## Convert Arrays To Warp
 
@@ -44,6 +44,38 @@ setup.
 `jarp.warp.types.floating`, `vecN`, and `matMN` follow JAX's active
 `jax_enable_x64` setting. Use them when Warp dtypes should match the precision
 mode already chosen by the surrounding JAX program.
+
+## Define Dtype-Aware Warp Structs
+
+Plain classes decorated with `jarp.struct` are forwarded to `warp.struct`. If a
+class defines `__annotations_factory__(dtype)`, `jarp.struct` keeps the class
+generic and lets subscription pick the Warp scalar dtype:
+
+```python
+from typing import Any
+
+import warp as wp
+from liblaf import jarp
+
+
+@jarp.struct
+class Particle[T]:
+    @classmethod
+    def __annotations_factory__(cls, dtype: Any) -> dict[str, Any]:
+        return {
+            "position": wp.array1d(dtype=wp.types.vector(3, dtype)),
+            "basis": wp.array1d(dtype=wp.types.matrix((3, 3), dtype)),
+        }
+
+
+particle32 = Particle[wp.float32]()
+particle64 = Particle[wp.float64]()
+particle_default = Particle()
+```
+
+`Particle[wp.float32]` and `Particle[wp.float64]` are cached specialized Warp
+structs. `Particle()` uses `jarp.warp.types.floating`, so the default scalar
+dtype follows `jax.config.read("jax_enable_x64")`.
 
 See [`jarp.warp`](../reference/liblaf/jarp/warp/README.md) and
 [`jarp.warp.types`](../reference/liblaf/jarp/warp/types.md) for the full API
