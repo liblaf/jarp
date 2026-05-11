@@ -65,7 +65,9 @@ round_trip = structure.unravel(flat)
 static leaves, and reshape offsets needed to rebuild compatible values later.
 
 If you already have a compatible tree, `Structure.ravel` can flatten it again
-and `Structure.unravel` will accept an already-matching tree unchanged.
+and `Structure.unravel` will accept an already-matching tree unchanged. If the
+recorded value was itself a JAX array, `Structure.unravel` reshapes a flat
+vector back to that array shape.
 
 ## Retry Selected Control-Flow Errors Eagerly
 

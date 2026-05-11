@@ -118,3 +118,16 @@ def test_lax_wrapper_retries_new_metadata_after_a_cached_failure() -> None:
         "wrapped:jax",
     ]
     assert len(wrapper.success_cache) == 1
+
+
+def test_lax_wrapper_accepts_callable_objects_without_function_metadata() -> None:
+    class Wrapped:
+        def __call__(self, value: int) -> int:
+            return value + 1
+
+    def fallback(value: int) -> int:
+        return value - 1
+
+    wrapper = LaxWrapper(Wrapped(), fallback)
+
+    assert wrapper(2) == 3

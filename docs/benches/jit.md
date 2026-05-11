@@ -9,9 +9,9 @@ inputs and recombining outputs on the same callable shape.
 
 |        Method        | No PyTree | Complex PyTree |
 | :------------------: | --------: | -------------: |
-|      `jax.jit`       |   7.36 µs |      768.07 µs |
-|  `jarp.filter_jit`   |  11.09 µs |      933.26 µs |
-| `equinox.filter_jit` | 292.72 µs |     1149.43 µs |
+|      `jax.jit`       |   9.11 µs |      266.30 µs |
+|  `jarp.filter_jit`   |  11.64 µs |      321.06 µs |
+| `equinox.filter_jit` | 319.96 µs |      326.68 µs |
 
 ## JAX
 
@@ -34,14 +34,14 @@ partitioning. The overhead for this convenience is small in the benchmark.
 ## Equinox
 
 `equinox.filter_jit` is the closest comparison point for mixed-tree call
-wrappers. In this microbenchmark, its invocation overhead is significantly
-higher.
+wrappers. In this microbenchmark, its no-input invocation overhead is much
+higher, while the complex-PyTree case is close to `jarp.filter_jit`.
 
 ## Test Environment
 
 ```text
-python==3.14.2
-jax==0.9.0
-liblaf-jarp==0.1.0
-equinox==0.13.2
+python==3.14.3
+jax==0.10.0
+liblaf-jarp==0.1.10.dev9+g99e249b88
+equinox==0.13.8
 ```

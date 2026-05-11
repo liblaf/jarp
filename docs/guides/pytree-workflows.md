@@ -69,6 +69,9 @@ bound arguments should remain visible to tree traversals.
 Importing `jarp.tree` also imports the private prelude module that registers
 bound methods and `warp.array` with JAX. That means methods and Warp arrays are
 ready before the public partitioning, raveling, and wrapper helpers need them.
+Key-aware traversals report useful paths for these adapters: bound methods use
+`__self__`, and `partial` exposes `_self_args`, `_self_kwargs`, and
+`__wrapped__`.
 
 ## Register Classes Without `jarp.define`
 

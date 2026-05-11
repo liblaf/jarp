@@ -15,6 +15,19 @@ class Partial[**P, T](wrapt.PartialCallableObjectProxy):
     Bound arguments and keyword arguments flatten as PyTree children, while the
     wrapped callable itself is partitioned between dynamic data and static
     metadata when needed.
+
+    Examples:
+        >>> import jax
+        >>> import jax.numpy as jnp
+        >>> from liblaf import jarp
+        >>> def add(left, right):
+        ...     return left + right
+        >>> part = jarp.partial(add, jnp.array([1, 2]))
+        >>> leaves, _treedef = jax.tree.flatten(part)
+        >>> [leaf.tolist() for leaf in leaves]
+        [[1, 2]]
+        >>> part(jnp.array([3, 4])).tolist()
+        [4, 6]
     """
 
     __wrapped__: Callable[..., T]
@@ -33,7 +46,7 @@ class Partial[**P, T](wrapt.PartialCallableObjectProxy):
 
 
 def partial[T](func: Callable[..., T], /, *args: Any, **kwargs: Any) -> Partial[..., T]:
-    """Partially apply a callable and keep the result compatible with JAX trees."""
+    """Partially apply a callable and keep bound values visible to JAX trees."""
     return Partial(func, *args, **kwargs)
 
 

@@ -86,11 +86,19 @@ def fallback_jit[**P, T](
     the same static metadata skip the partitioned path and reuse the Python
     fallback immediately.
 
+    Examples:
+        >>> import jax.numpy as jnp
+        >>> from liblaf import jarp
+        >>> @jarp.fallback_jit
+        ... def add_one(value):
+        ...     return value + 1
+        >>> int(add_one(jnp.array(2)))
+        3
+
     Args:
         fun: Callable to wrap. When omitted, return a configured decorator.
-        **kwargs: Reserved compatibility options for a `jax.jit`-like
-            surface. The current implementation accepts these names but does
-            not use them directly.
+        **kwargs: Options forwarded to [`jax.jit`][jax.jit] for the inner
+            filtered callable.
 
     Returns:
         The wrapped callable, or a decorator that produces one.

@@ -34,12 +34,12 @@ class Structure[T]:
         return jtu.treedef_is_leaf(self.treedef)
 
     def ravel(self, tree: T | Array) -> Array1D:
-        """Flatten a compatible tree or flatten an array in-place.
+        """Flatten a compatible tree or flatten an array directly.
 
         Args:
             tree: A tree with the same structure and static leaves used to
-                build this [`Structure`][liblaf.jarp.tree.Structure], or an
-                already-flat array.
+                build this [`Structure`][liblaf.jarp.tree.Structure], or a JAX
+                array that should be flattened directly.
 
         Returns:
             A one-dimensional array containing the dynamic leaves.
@@ -88,6 +88,16 @@ def ravel[T](tree: T) -> tuple[Array, Structure[T]]:
     Non-array leaves are treated as static metadata and preserved in the
     returned [`Structure`][liblaf.jarp.tree.Structure] instead of being
     concatenated into the flat array.
+
+    Examples:
+        >>> import jax.numpy as jnp
+        >>> from liblaf import jarp
+        >>> flat, structure = jarp.ravel({"x": jnp.array([1.0, 2.0]), "tag": "train"})
+        >>> flat.tolist()
+        [1.0, 2.0]
+        >>> rebuilt = structure.unravel(jnp.array([3.0, 4.0]))
+        >>> rebuilt["x"].tolist(), rebuilt["tag"]
+        ([3.0, 4.0], 'train')
 
     Args:
         tree: PyTree to flatten.
