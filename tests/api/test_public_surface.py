@@ -1,3 +1,4 @@
+import enum
 import importlib
 
 import pytest
@@ -8,6 +9,7 @@ from liblaf import jarp
 
 def test_top_level_exports_cover_the_runtime_public_surface() -> None:
     assert {
+        "Enum",
         "Partial",
         "PyTreeProxy",
         "Structure",
@@ -30,6 +32,7 @@ def test_top_level_exports_cover_the_runtime_public_surface() -> None:
     assert "utils" not in jarp.__all__
     assert callable(jarp.filter_jit)
     assert callable(jarp.fallback_jit)
+    assert issubclass(jarp.Enum, enum.Enum)
     assert callable(jarp.first_true_index)
     assert callable(jarp.ravel)
     assert callable(jarp.to_warp)
@@ -46,7 +49,9 @@ def test_submodule_exports_are_discoverable() -> None:
         "while_loop",
     }
     assert set(jit_module.__all__) == {"fallback_jit", "filter_jit"}
-    assert {"register_fieldz", "register_generic"} <= set(jarp.tree.__all__)
+    assert {"register_fieldz", "register_generic", "select", "where"} <= set(
+        jarp.tree.__all__
+    )
     assert "register_pytree_prelude" not in jarp.tree.__all__
     assert {"jax_callable", "jax_kernel", "struct", "to_warp", "types"} <= set(
         jarp.warp.__all__

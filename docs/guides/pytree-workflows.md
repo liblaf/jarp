@@ -49,6 +49,40 @@ without losing the tree layout or static leaves. The returned `Structure` can
 flatten another compatible tree later or rebuild the original layout from a
 flat vector.
 
+## Carry Enum State As Dynamic Data
+
+```python
+import enum
+
+import jax
+import jax.numpy as jnp
+from liblaf import jarp
+
+
+class Phase(jarp.Enum):
+    START = enum.auto()
+    RUNNING = enum.auto()
+    DONE = enum.auto()
+
+
+@jax.jit
+def choose(mask):
+    return Phase.where(mask, Phase.START, Phase.RUNNING)
+
+
+phase = choose(jnp.array([True, False, True]))
+```
+
+`Enum` stores its integer value as a dynamic JAX leaf, so enum state can be
+carried through `jax.jit`, `jax.lax.while_loop`, and other PyTree-aware APIs.
+Scalar values still resolve to ordinary enum members. Vectorized choices can
+produce an enum object named `"<unknown>"` because the array may hold several
+member values at once.
+
+Use `Enum.where` for a two-way choice and `Enum.select` for ordered condition
+lists. The lower-level `tree.where` and `tree.select` apply the same leafwise
+selection to any matching PyTree structure.
+
 ## Wrap Foreign Objects As PyTrees
 
 ```python

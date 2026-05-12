@@ -33,10 +33,12 @@ around that boundary:
 
 - `filter_jit` and `fallback_jit` wrap callables while partitioning arrays away
   from static metadata.
-- `define`, `frozen`, `array()`, `static()`, and `auto()` make `attrs` classes
-  flatten the way JAX expects.
+- `Enum`, `define`, `frozen`, `array()`, `static()`, and `auto()` make enum
+  state and `attrs` classes flatten the way JAX expects.
 - `ravel` turns the dynamic leaves of a tree into one flat vector and returns a
   reusable `Structure` for round trips.
+- `tree.where` and `tree.select` apply `jax.numpy.where` and
+  `jax.numpy.select` across matching PyTree leaves.
 - `jarp.lax` retries a small slice of `jax.lax` eagerly when JAX rejects
   Python-only callback logic, while preserving the wrapped primitive metadata.
 - `to_warp`, `jarp.struct`, `jarp.warp.jax_callable`, and
@@ -89,6 +91,24 @@ result = normalize(batch)
 The array payload stays on the dynamic side of the partition, while the string
 label remains static metadata. `auto()` is the middle ground when a field
 should follow the runtime value.
+
+Enum state can stay dynamic too, which is useful for state machines inside JAX
+control flow:
+
+```python
+import enum
+
+import jax.numpy as jnp
+from liblaf import jarp
+
+
+class Phase(jarp.Enum):
+    START = enum.auto()
+    RUNNING = enum.auto()
+
+
+phase = Phase.where(jnp.array([True, False]), Phase.START, Phase.RUNNING)
+```
 
 `jarp.ravel` handles the other common workflow: flatten only the dynamic leaves
 into one vector and keep enough structure around to rebuild the tree later.

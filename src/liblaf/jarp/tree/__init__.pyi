@@ -8,6 +8,7 @@ from ._filters import (
     partition,
     partition_leaves,
 )
+from ._ops import select, where
 from ._ravel import Structure, ravel
 from .attrs import (
     FieldType,
@@ -51,5 +52,7 @@ __all__ = [
     "ravel",
     "register_fieldz",
     "register_generic",
+    "select",
     "static",
+    "where",
 ]

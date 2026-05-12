@@ -4,7 +4,7 @@
 # Basics
 site_name = "liblaf.jarp"
 site_url = "__SITE_URL__"
-site_description = "Filtered call wrappers, PyTree registration, flat-vector raveling, and dtype-aware Warp interop for JAX code."
+site_description = "Filtered call wrappers, traceable enum state, PyTree registration, flat-vector raveling, and dtype-aware Warp interop for JAX code."
 site_author = "liblaf"
 # Navigation
 nav = [

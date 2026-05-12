@@ -1,4 +1,5 @@
 from . import lax, tree, warp
+from ._enum import Enum
 from ._jit import fallback_jit, filter_jit
 from ._version import __commit_id__, __version__, __version_tuple__
 from .lax import cond, first_true_index, fori_loop, switch, while_loop
@@ -19,6 +20,7 @@ from .tree import (
 from .warp import jax_callable, jax_kernel, struct, to_warp
 
 __all__ = [
+    "Enum",
     "Partial",
     "PyTreeProxy",
     "Structure",

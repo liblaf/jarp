@@ -3,7 +3,7 @@
 
 [project]
 name = "liblaf-jarp"
-description = "Filtered call wrappers, PyTree registration, flat-vector raveling, and dtype-aware Warp interop for JAX code."
+description = "Filtered call wrappers, traceable enum state, PyTree registration, flat-vector raveling, and dtype-aware Warp interop for JAX code."
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
