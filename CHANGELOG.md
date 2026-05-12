@@ -7,6 +7,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Changelog](https://github.com/conventional-changelog/conventional-changelog-config-spec/blob/master/versions/2.2.0/README.md),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.2.1](https://github.com/liblaf/jarp/releases/tag/v0.2.1) - 2026-05-12
+
+### ✨ Features
+
+- add traceable Enum state and PyTree leafwise selection - [eee9571](https://github.com/liblaf/jarp/commit/eee95715e2f802d8264e864d3fec27dcdad4df85) by [@liblaf](https://github.com/liblaf)
+
+### ❤️ Contributors
+
+- [@liblaf](https://github.com/liblaf)
+
 ## [v0.2.0](https://github.com/liblaf/jarp/releases/tag/v0.2.0) - 2026-05-11
 
 ### 💥 BREAKING CHANGES
@@ -31,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### ❤️ Contributors
 
+- [@liblaf-release-please[bot]](https://github.com/apps/liblaf-release-please)
 - [@liblaf](https://github.com/liblaf)
 - [@renovate[bot]](https://github.com/apps/renovate)
 - [@liblaf-copier[bot]](https://github.com/apps/liblaf-copier) made their first contribution in [#33](https://github.com/liblaf/jarp/pull/33)
